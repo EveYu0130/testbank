@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Please Login First</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="{{ url_for('static', filename='js/myscripts.js')}}"></script>
+  
+</head>
+<body>
+<div class="container" id="body">
+  <h2>My Chapters</h2>
+  <p>Here is the chapters for the book.</p>  
+
+  <table class="table">
+    <thead>
+    <tr>
+            <td>id</td>
+            <td>Name</td>
+            <td> link </td>
+            <td></td>
+        </tr>
+      </thead>
+      <!-- <tr>
+            <td>{{ table.category }}</td>
+            <td>{{ table.number }}</td>
+            <td>{{ table.name }}</td>
+            <td><a href="{{ url_for('list_chapters', index=1) }}" class="btn btn-info" role="button" >Go</a></td>
+        </tr> -->
+    {% for item in table %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.name }}</td>
+            <td><a href="{{ url_for('list_questions', chapter_id=table[loop.index - 1].id) }}" class="btn btn-info" role="button" >Go</a></td>
+            <td><input type="checkbox"></input></td>
+        </tr>
+{% endfor %}
+</table> 
+<p>{{ data }}</p>   
+
+</div>
+
+<div class="container">
+  <a class="btn btn-info" role="button" >Start Multi-Chapter Quiz</a>
+  <a href="{{ url_for('add_chapter') }}" class="btn btn-info" role="button" >Add a Chapter</a>
+  <a href="{{ url_for('list_books') }}" class="btn btn-info" role="button" >Back to My Books</a>
+  <!-- <button type="button" class="btn btn-info">Button</button>
+  <input type="button" class="btn btn-info" value="Input Button">
+  <input type="submit" class="btn btn-info" value="Submit Button"> -->
+</div>
+
+</body>
+</html>

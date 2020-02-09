@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Create Account</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="{{ url_for('static', filename='js/myscripts.js')}}"></script>
+  
+</head>
+<body>
+
+<div class="container">
+  <h2>Add a Question</h2>
+  <form method="post" novalidate formnovalidate class="form" role="form" id='form' action="{{ url_for('adding_question') }}" >
+    <div class="form-group">
+      <label for="question">Question:</label>
+      <input type="question" class="form-control" id="question" placeholder="Enter question" name="question">
+    </div>
+    <div class="form-group">
+      <label for="a">A:</label>
+      <input type="a" class="form-control" id="a" placeholder="Enter Opt A" name="a">
+    </div>
+    <div class="form-group">
+      <label for="b">B:</label>
+      <input type="b" class="form-control" id="b" placeholder="Enter Opt B" name="b">
+    </div>
+    <div class="form-group">
+      <label for="c">C:</label>
+      <input type="c" class="form-control" id="c" placeholder="Enter Opt C" name="c">
+    </div>
+    <div class="form-group">
+      <label for="d">D:</label>
+      <input type="d" class="form-control" id="d" placeholder="Enter Opt D" name="d">
+    </div>
+    <div class="form-group">
+      <label for="solution">Solution:</label>
+      <input type="solution" class="form-control" id="solution" placeholder="Enter solution" name="solution">
+    </div>
+
+    <button type="submit" class="btn btn-info">Create</button>
+  </form>
+  <p>{{ data }}</p>
+</div>
+
+
+</body>
+</html>
+

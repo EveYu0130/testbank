@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Please Login First</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="{{ url_for('static', filename='js/myscripts.js')}}"></script>
+  
+</head>
+<body>
+<div class="container" id="body">
+  <h2>Quiz</h2> 
+
+  <table class="table">
+    <thead>
+    <tr>
+      <td>Question: {{ table[0] }}</td>
+    </tr>
+  </thead>
+      <tr>
+        <td>A. {{ table[1] }}</td>
+      </tr>
+      <tr>
+        <td>B. {{ table[2] }}</td>
+      </tr>
+      <tr>
+        <td>C. {{ table[3] }}</td>
+      </tr>
+      <tr>
+        <td>D. {{ table[4] }}</td>
+      </tr>
+      <tr>
+        <td>E. {{ table[5] }}</td>
+      </tr>
+</table>
+<p id="s"></p>    
+
+</div>
+
+<div class="container">
+  <a class="btn btn-info" role="button" onclick="show('s', '{{ table[6] }}')">Show Solution</a>
+  <a href="{{ url_for('at_question', restart=0)}}" class="btn btn-info" role="button" >Next</a>
+  <!-- <button type="button" class="btn btn-info">Button</button>
+  <input type="button" class="btn btn-info" value="Input Button">
+  <input type="submit" class="btn btn-info" value="Submit Button"> -->
+</div>
+</body>
+</html>

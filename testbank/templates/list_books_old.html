@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Please Login First</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="{{ url_for('static', filename='js/myscripts.js')}}"></script>
+  
+</head>
+<body>
+<div class="container" id="body">
+  <h2>My Test Banks</h2>
+  <p>Here is the list of books you have uploaded.</p>  
+
+  <a href=# class="btn btn-info" role="button" onclick="generate_table('mytable')" >show</a>
+  <table id="table" class="table">
+    
+  </table>  
+
+</div>
+
+<div class="container">
+  <a href="{{ url_for('add_book') }}" class="btn btn-info" role="button" >Add a Book</a>
+  <p hidden id='mytable'>{{ table }}</p>
+  <!-- <button type="button" class="btn btn-info">Button</button>
+  <input type="button" class="btn btn-info" value="Input Button">
+  <input type="submit" class="btn btn-info" value="Submit Button"> -->
+</div>
+
+</body>
+</html>
