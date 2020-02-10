@@ -6,6 +6,7 @@ testbank
 │   README.md
 │   setup.py 
 |   MANIFEST.in   
+|   relational_diagram.png //visualized tables and relations
 │
 └───testbank
         __init__.py
