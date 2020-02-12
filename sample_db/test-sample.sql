@@ -1,3 +1,7 @@
+# Add a new User
+INSERT INTO Users (id, username, pw, email, reg_date)
+VALUES (4, 'David', '123456', 'david@gmail.com', now());
+
 # list all books for the current user 'Alice'
 SELECT Books.* 
 FROM Users, Books, Users_2_Books
