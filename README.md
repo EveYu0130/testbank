@@ -8,6 +8,14 @@ testbank
 |   MANIFEST.in   
 |   relational_diagram.png //visualized tables and relations
 │
+└───sample_db
+    |   README.md (for sample database)
+    |   test-sample.sql
+    |   test-sample.out
+    |   createtables.sql
+    |   populatetables.sql
+    └───data
+│
 └───testbank
         __init__.py
     │   schema.sql //test sql script
