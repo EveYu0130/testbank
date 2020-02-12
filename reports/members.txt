@@ -1,0 +1,17 @@
+Members: 
+	Haoqi Shi (20603439): 
+		Participated in group meeting and discussed the application design;
+		Drew the ER-Diagram indicating the application design.
+	Jiaqi Wang (20657135): 
+		Participated in group meeting and discussed the application design;
+		Started the application, set up the environment, and implemented some functionalities;
+		Initiated the git repo for the project and finished the writeup for database design schema;
+		Uploaded the initial database to GCP.
+	Xueyao Yu (20622323): 
+		Participated in group meeting and discussed the application design;
+		Initiated the project report and relative documentations;
+		Implemented database testing script and finished README to load database. 
+	Zhengmin Zhang (20602385):
+		Participated in group meeting and discussed the application design;
+		Initiated the project report and relative documentations;
+		Finished the report with project details listed.
