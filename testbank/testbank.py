@@ -14,7 +14,7 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = '123456'
-app.config['MYSQL_DB'] = "test_script"
+app.config['MYSQL_DB'] = "wjq"
 
 # app.config['MYSQL_HOST'] = '127.0.0.1'
 # app.config['MYSQL_USER'] = 'root'
@@ -30,7 +30,9 @@ cur_user_id = None
 cur_book_id = 0
 cur_chapter_id = 0
 cur_qid_list = []
-test = True
+cur_qid = None
+test = False
+table = None
 
 
 # app.config['APPLICATION_ROOT'] = "../html/index.html"
@@ -120,6 +122,15 @@ def welcome(data=''):
                     'UNIQUE KEY (question_id, solution_id), '
                     'FOREIGN KEY (question_id) REFERENCES Questions(id), '
                     'FOREIGN KEY (solution_id) REFERENCES Options(id));')
+        cur.execute('CREATE TABLE IF NOT EXISTS '
+                    'Chapters_2_Errors ( '
+                    'id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY UNIQUE, '
+                    'chapter_id INT(10) UNSIGNED NOT NULL, '
+                    'error_id INT(10) UNSIGNED NOT NULL, '
+                    'add_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, '
+                    'UNIQUE KEY (chapter_id, error_id), '
+                    'FOREIGN KEY (error_id) REFERENCES Questions(id), '
+                    'FOREIGN KEY (chapter_id) REFERENCES Chapters(id));')
 
     return render_template('index.html', data=data)
     # return '../html/index.html'
@@ -491,15 +502,34 @@ def list_questions(data=''):
     cur_qid_list_tmp = save
     return render_template('list_questions.html', data=data)
 
+@app.route('/list_errors', methods=['GET', 'POST'])
+def list_errors(data=''):
+    db = mysql.connection
+    global cur_chapter_id
+    cur_chapter_id = int(request.args.get('chapter_id', cur_chapter_id))
+    print("received book id is " + str(request.args.get('chapter_id', cur_chapter_id)))
+    cur = db.cursor()
+    cur.execute("SELECT error_id FROM Chapters_2_Errors where chapter_id=" + str(cur_chapter_id) + ';')
+    save = cur.fetchall()
+    save = [x[0] for x in list(save)]
+    shuffle(save)
+    cur.close()
+    global cur_qid_list
+    global cur_qid_list_tmp
+    cur_qid_list = save
+    cur_qid_list_tmp = save
+    return render_template('list_questions.html', data=data)
+
 
 @app.route('/at_question', methods=['GET', 'POST'])
 def at_question():
-    global cur_qid_list, cur_qid_list_tmp
+    global cur_qid_list, cur_qid_list_tmp, cur_qid
     print(len(cur_qid_list_tmp))
     if len(cur_qid_list_tmp) == 0:
         return list_chapters(data='This chapter is empty.')
         # return redirect(url_for('list_chapters', data='This chapter is empty.'))
     restart = int(request.args.get('restart', 0))
+    global table
     table = []
     if restart == 1:
         cur_qid_list = cur_qid_list_tmp
@@ -551,3 +581,23 @@ def at_question():
     table.append(save[0][0])
 
     return render_template('start_quiz.html', table=table)
+
+@app.route('/answered_question', methods=['GET', 'POST'])
+def answered_question():
+    global table, cur_qid, cur_chapter_id
+    value = request.form.getlist('check')
+    if len(value) > 1:
+        return render_template('start_quiz.html', table=table, data='Only one possible solution')
+    if value[0] != table[-1]:
+        db = mysql.connection
+        cur = db.cursor()
+        sql_insert = """insert into Chapters_2_Errors (chapter_id, error_id) values (%s,%s)"""
+        try:
+            cur.execute(sql_insert, (cur_chapter_id, cur_qid))
+            db.commit()
+        except db.IntegrityError:
+            logging.warn("failed to insert values %s, %s", cur_chapter_id, cur_qid)
+        cur.close()
+        return render_template('start_quiz.html', table=table, data='Wrong')
+    else:
+        return render_template('start_quiz.html', table=table, data='Correct')

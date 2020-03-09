@@ -72,3 +72,12 @@ UNIQUE KEY (question_id, solution_id),
 FOREIGN KEY (question_id) REFERENCES Questions(id),
 FOREIGN KEY (solution_id) REFERENCES Options(id));
 
+CREATE TABLE IF NOT EXISTS Chapters_2_Errors (
+id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY UNIQUE,
+chapter_id INT(10) UNSIGNED NOT NULL,
+error_id INT(10) UNSIGNED NOT NULL,
+add_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+UNIQUE KEY (chapter_id, error_id),
+FOREIGN KEY (error_id) REFERENCES Questions(id),
+FOREIGN KEY (chapter_id) REFERENCES Chapters(id));
+
