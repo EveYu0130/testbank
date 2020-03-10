@@ -41,22 +41,8 @@ AND Questions.id = Chapters_2_Questions.question_id
 ORDER BY Questions.context ASC;
 
 # Select Question '1+1=?', display the solution
-SELECT Questions.context AS question, Solutions.context AS solution
-FROM Questions, Solutions, Questions_2_Solutions
+SELECT Questions.context AS question, Options.context AS solution
+FROM Questions, Options, Questions_2_Solutions
 WHERE Questions.context = '1+1=?'
 AND Questions.id = Questions_2_Solutions.question_id
-AND Solutions.id = Questions_2_Solutions.solution_id;
-
-# Update Question Solution
-UPDATE Solutions, Questions, Questions_2_Solutions
-SET Solutions.context = '2'
-WHERE Questions.context = '1+1=?'
-AND Questions.id = Questions_2_Solutions.question_id
-AND Solutions.id = Questions_2_Solutions.solution_id;
-
-# Display the updated solution
-SELECT Questions.context AS questions, Solutions.context AS solution
-FROM Questions, Solutions, Questions_2_Solutions
-WHERE Questions.context = '1+1=?'
-AND Questions.id = Questions_2_Solutions.question_id
-AND Solutions.id = Questions_2_Solutions.solution_id;
+AND Options.id = Questions_2_Solutions.solution_id;
