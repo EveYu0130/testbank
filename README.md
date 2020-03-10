@@ -38,7 +38,15 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = '123456'
 app.config['MYSQL_DB'] = "test_script
+
 ```
+
+
+## Production Database
+There are public problem sets we have gathered and are available at:
+https://drive.google.com/open?id=1Fs5ZudDQz_FZxOGBEb8ReqhErdxa3QY-
+In the source code, set the debug flag to True, then this database will be loaded. 
+
 
 ## Run App
 Go to root diretory(/testbank), run the following commands.
