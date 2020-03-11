@@ -1,0 +1,40 @@
+1,"creating offerings",2020-03-01
+2,"communicating offerings",2020-03-01
+3,"delivering offerings",2020-03-01
+4,"selling offerings",2020-03-01
+5,"two or more parties (individuals or organizations) with unsatisfied needs.",2020-03-01
+6,"unsatisfied needs that can only be satisfied by physical products, not services.",2020-03-01
+7,"a desire and ability on their part to be satisfied.",2020-03-01
+8,"a way for the parties to communicate.",2020-03-01
+9,"organizational buyer",2020-03-01
+10,"federal buyer.",2020-03-01
+11,"government buyer.",2020-03-01
+12,"ultimate buyer",2020-03-01
+13,"good common sense.",2020-03-01
+14,"all departments within an organization to work together.",2020-03-01
+15,"intimate knowledge and understanding of consumers and the marketplace.",2020-03-01
+16,"selling unwanted things.",2020-03-01
+17,"selling.",2020-03-01
+18,"discovering the needs and wants of prospective customers and satisfying them.",2020-03-01
+19,"exchange.",2020-03-01
+20,"advertising.",2020-03-01
+21,"change them.",2020-03-01
+22,"take advantage of them.",2020-03-01
+23,"satisfy them.",2020-03-01
+24,"manipulate them.",2020-03-01
+25,"place where people go to do business.",2020-03-01
+26,"place where people return unwanted goods.",2020-03-01
+27,"process whereby a buyer and seller trade something of value.",2020-03-01
+28,"process of locating buyers and sellers.",2020-03-01
+29,"It is the responsibility of the marketing department to facilitate relationships with the organization's customers.",2020-03-01
+30,"It is the responsibility of the marketing department to create partnerships with the organization's suppliers.",2020-03-01
+31,"The marketing department must work closely with a network of other departments and employees to help provide the customer-satisfying products required for the organization to survive and prosper.",2020-03-01
+32,"The marketing department is responsible for designing, creating, and building new products that satisfy the needs and wants of consumers.",2020-03-01
+33,"politicians, regulators, minority groups, and consumer monitoring groups.",2020-03-01
+34,"competitors, industry trade associations, non-profit organizations, and governmental agencies.",2020-03-01
+35,"senior management, the legal department, the marketing department, and other employees of the organization.",2020-03-01
+36,"other organizations, suppliers, shareholders (owners), and customers.",2020-03-01
+37,"a physical location for an exchange to occur",2020-03-01
+38,"something to exchange",2020-03-01
+39,"a way to communicate",2020-03-01
+40,"two or more parties with unsatisfied needs",2020-03-01
