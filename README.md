@@ -16,6 +16,10 @@ testbank
     |   populatetables.sql
     └───data
 │
+└───production_db
+    |   test-production.sql
+    |   test-production.out
+│
 └───testbank
         __init__.py
     │   schema.sql //test sql script
