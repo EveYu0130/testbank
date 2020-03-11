@@ -1,0 +1,72 @@
+mysql> source test-sample.sql
+Query OK, 1 row affected (0.01 sec)
+
++----+----------+--------+---------------------------------+---------------------+
+| id | category | number | name                            | add_date            |
++----+----------+--------+---------------------------------+---------------------+
+|  4 | HRM      |    200 | Basic Human Resource Management | 2020-03-01 00:00:00 |
+|  3 | ECON     |    102 | Introduction to Macroeconomics  | 2020-03-01 00:00:00 |
+|  2 | ECON     |    101 | Introduction to Microeconomics  | 2020-03-01 00:00:00 |
+|  1 | ECON     |    344 | Principle of Marketing          | 2020-03-01 00:00:00 |
++----+----------+--------+---------------------------------+---------------------+
+4 rows in set (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
++----+----------+--------+---------------------------------+---------------------+
+| id | category | number | name                            | add_date            |
++----+----------+--------+---------------------------------+---------------------+
+|  5 | CS       |    341 | Algorithm                       | 2020-03-10 19:59:11 |
+|  4 | HRM      |    200 | Basic Human Resource Management | 2020-03-01 00:00:00 |
+|  3 | ECON     |    102 | Introduction to Macroeconomics  | 2020-03-01 00:00:00 |
+|  2 | ECON     |    101 | Introduction to Microeconomics  | 2020-03-01 00:00:00 |
+|  1 | ECON     |    344 | Principle of Marketing          | 2020-03-01 00:00:00 |
++----+----------+--------+---------------------------------+---------------------+
+5 rows in set (0.00 sec)
+
++----+----------+---------------------+------------------------+
+| id | name     | add_date            | book_name              |
++----+----------+---------------------+------------------------+
+|  1 | Chapter1 | 2020-03-01 00:00:00 | Principle of Marketing |
+|  2 | Chapter2 | 2020-03-01 00:00:00 | Principle of Marketing |
+|  3 | Chapter3 | 2020-03-01 00:00:00 | Principle of Marketing |
+|  4 | Chapter4 | 2020-03-01 00:00:00 | Principle of Marketing |
+|  5 | Chapter5 | 2020-03-01 00:00:00 | Principle of Marketing |
+|  6 | Chapter6 | 2020-03-01 00:00:00 | Principle of Marketing |
++----+----------+---------------------+------------------------+
+6 rows in set (0.00 sec)
+
++----+----------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+--------------+
+| id | context                                                                                                                                            | add_date            | chapter_name |
++----+----------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+--------------+
+| 10 | All of the below are conditions that are necessary for marketing to occur, except:                                                                 | 2020-03-01 00:00:00 | Chapter1     |
+|  1 | By definition, which of the following is not considered a marketing activity?                                                                      | 2020-03-01 00:00:00 | Chapter1     |
+|  4 | Effective marketing requires:                                                                                                                      | 2020-03-01 00:00:00 | Chapter1     |
+|  7 | Marketing occurs when the transaction takes place. Essential to this process is the idea of exchange. To marketing people, exchange refers to the: | 2020-03-01 00:00:00 | Chapter1     |
+|  3 | The Canadian Federal Government may be considered what type of marketing buyer?                                                                    | 2020-03-01 00:00:00 | Chapter1     |
+|  9 | The four outside stakeholder groups that exert important direct influences on an organization consist of:                                          | 2020-03-01 00:00:00 | Chapter1     |
+|  5 | To serve both buyers and sellers, marketing seeks to create value through:                                                                         | 2020-03-01 00:00:00 | Chapter1     |
+|  6 | To serve both buyers and sellers, marketing seeks to discover the needs and wants of prospective customers and to:                                 | 2020-03-01 00:00:00 | Chapter1     |
+|  2 | Which of the following is NOT required for marketing to occur?                                                                                     | 2020-03-01 00:00:00 | Chapter1     |
+|  8 | Which of the following statements about marketing departments is not true?                                                                         | 2020-03-01 00:00:00 | Chapter1     |
++----+----------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+--------------+
+10 rows in set (0.01 sec)
+
++----------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------+
+| question                                                                                                                                           | solution                                                                                                                                  |
++----------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------+
+| By definition, which of the following is not considered a marketing activity?                                                                      | selling offerings                                                                                                                         |
+| Which of the following is NOT required for marketing to occur?                                                                                     | unsatisfied needs that can only be satisfied by physical products, not services.                                                          |
+| The Canadian Federal Government may be considered what type of marketing buyer?                                                                    | organizational buyer                                                                                                                      |
+| Effective marketing requires:                                                                                                                      | intimate knowledge and understanding of consumers and the marketplace.                                                                    |
+| To serve both buyers and sellers, marketing seeks to create value through:                                                                         | discovering the needs and wants of prospective customers and satisfying them.                                                             |
+| To serve both buyers and sellers, marketing seeks to discover the needs and wants of prospective customers and to:                                 | satisfy them.                                                                                                                             |
+| Marketing occurs when the transaction takes place. Essential to this process is the idea of exchange. To marketing people, exchange refers to the: | process whereby a buyer and seller trade something of value.                                                                              |
+| Which of the following statements about marketing departments is not true?                                                                         | The marketing department is responsible for designing, creating, and building new products that satisfy the needs and wants of consumers. |
+| The four outside stakeholder groups that exert important direct influences on an organization consist of:                                          | other organizations, suppliers, shareholders (owners), and customers.                                                                     |
+| All of the below are conditions that are necessary for marketing to occur, except:                                                                 | a physical location for an exchange to occur                                                                                              |
++----------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------+
+10 rows in set (0.00 sec)
+

@@ -12,30 +12,62 @@
 </head>
 <body>
 <div class="container" id="body">
-  <h2>Quiz</h2> 
+  <h2>Quiz</h2>
 
-  <table class="table">
-    <thead>
-    <tr>
-      <td>Question: {{ table[0] }}</td>
-    </tr>
-  </thead>
-      <tr>
-        <td>A. {{ table[1] }}</td>
-      </tr>
-      <tr>
-        <td>B. {{ table[2] }}</td>
-      </tr>
-      <tr>
-        <td>C. {{ table[3] }}</td>
-      </tr>
-      <tr>
-        <td>D. {{ table[4] }}</td>
-      </tr>
-      <tr>
-        <td>E. {{ table[5] }}</td>
-      </tr>
-</table>
+
+
+  <form method="post" novalidate formnovalidate class="form" role="form" id='form' action="{{ url_for('answered_question') }}" >
+    <div class="form-group">
+      <label>Question: {{ table[0] }}</label>
+    </div>
+
+      <div class="checkbox">
+      <label><input type="checkbox" name="check" value="{{ table[1] }}"> {{ table[1] }}</label>
+      </div>
+
+    <div class="checkbox">
+      <label><input type="checkbox" name="check" value="{{ table[2] }}"> {{ table[2] }}</label>
+      </div>
+
+      <div class="checkbox">
+      <label><input type="checkbox" name="check" value="{{ table[3] }}"> {{ table[3] }}</label>
+      </div>
+
+      <div class="checkbox">
+      <label><input type="checkbox" name="check" value="{{ table[4] }}"> {{ table[4] }}</label>
+      </div>
+
+      <div class="checkbox">
+      <label><input type="checkbox" name="check" value="{{ table[5] }}"> {{ table[5] }}</label>
+      </div>
+
+    <button type="submit" class="btn btn-info">Submit</button>
+  </form>
+  <p>{{ data }}</p>
+
+
+  <!--<table class="table">-->
+    <!--<thead>-->
+    <!--<tr>-->
+      <!--<td>Question: {{ table[0] }}</td>-->
+    <!--</tr>-->
+  <!--</thead>-->
+      <!--<tr>-->
+        <!--<td>A. {{ table[1] }}</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<td>B. {{ table[2] }}</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<td>C. {{ table[3] }}</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<td>D. {{ table[4] }}</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<td>E. {{ table[5] }}</td>-->
+      <!--</tr>-->
+<!--</table>-->
 <p id="s"></p>    
 
 </div>

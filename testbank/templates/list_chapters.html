@@ -20,7 +20,8 @@
     <tr>
             <td>id</td>
             <td>Name</td>
-            <td> link </td>
+            <td> All Questions </td>
+        <td> Error Book </td>
             <td></td>
         </tr>
       </thead>
@@ -35,7 +36,7 @@
             <td>{{ item.id }}</td>
             <td>{{ item.name }}</td>
             <td><a href="{{ url_for('list_questions', chapter_id=table[loop.index - 1].id) }}" class="btn btn-info" role="button" >Go</a></td>
-            <td><input type="checkbox"></input></td>
+            <td><a href="{{ url_for('list_errors', chapter_id=table[loop.index - 1].id) }}" class="btn btn-info" role="button" >Go</a></td>
         </tr>
 {% endfor %}
 </table> 

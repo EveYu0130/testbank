@@ -1,0 +1,4 @@
+1,ECON,344,Principle of Marketing,2020-03-01
+2,ECON,101,Introduction to Microeconomics,2020-03-01
+3,ECON,102,Introduction to Macroeconomics,2020-03-01
+4,HRM,200,Basic Human Resource Management,2020-03-01
