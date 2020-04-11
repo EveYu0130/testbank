@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, url_for, redirect
+from flask import Flask, request, render_template, url_for, redirect, Response, json
 from flask_cors import CORS
 from flask_caching import Cache
 from flask_mysqldb import MySQL
@@ -157,7 +157,8 @@ def hello_world():
     a = request.form.get("username")
     b = request.form.get("password")
     if b is None or a is None:
-        return redirect(url_for('fail'))
+        response = Response(status=301)
+        # return redirect(url_for('fail'))
     db = mysql.connection
     cur = db.cursor()
     cur.execute("SELECT id FROM Users where username=\'" + a + '\' and pw=\'' + b + '\'')
@@ -165,9 +166,12 @@ def hello_world():
     if cur.rowcount == 1:
         cur_user_id = cur.fetchall()[0]
         print(cur_user_id)
-        return redirect(url_for('list_books'))
+        response = Response(status=200)
+        # return redirect(url_for('list_books'))
     else:
-        return redirect(url_for('fail'))
+        response = Response(status=301)
+        # return redirect(url_for('fail'))
+    return response
 
 
 @app.route('/create_account', methods=['GET', 'POST'])
@@ -228,7 +232,13 @@ def list_books(data=''):
         cur.close()
         book_table.append({'category': category, 'number': number, 'name': name, 'id': id})
     cur.close()
-    return render_template('list_books.html', data=data, table=book_table)
+    response = app.response_class(
+        response=json.dumps(book_table),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+    # return render_template('list_books.html', data=data, table=book_table)
     # return render_template('list_books.html', data=data, table=json.dumps(table))
 
 
@@ -480,8 +490,14 @@ def list_chapters(data=''):
         chapter_table.append({'name': name, 'id': id})
     cur.close()
     print(chapter_table)
+    response = app.response_class(
+        response=json.dumps(chapter_table),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
     # return "value=" + str(values[index]['b'])
-    return render_template('list_chapters.html', data=data, table=chapter_table)
+    # return render_template('list_chapters.html', data=data, table=chapter_table)
 
 
 @app.route('/list_questions', methods=['GET', 'POST'])
@@ -500,7 +516,13 @@ def list_questions(data=''):
     global cur_qid_list_tmp
     cur_qid_list = save
     cur_qid_list_tmp = save
-    return render_template('list_questions.html', data=data)
+    response = app.response_class(
+        response=json.dumps(cur_qid_list),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+    # return render_template('list_questions.html', data=data)
 
 
 
