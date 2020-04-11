@@ -18,10 +18,11 @@
   <table class="table">
     <thead>
     <tr>
-            <td>id</td>
-            <td>Name</td>
-            <td> All Questions </td>
+        <td>id</td>
+        <td>Name</td>
+        <td> Quiz </td>
         <td> Error Book </td>
+        <td> Modify </td>
             <td></td>
         </tr>
       </thead>
@@ -37,6 +38,8 @@
             <td>{{ item.name }}</td>
             <td><a href="{{ url_for('list_questions', chapter_id=table[loop.index - 1].id) }}" class="btn btn-info" role="button" >Go</a></td>
             <td><a href="{{ url_for('list_errors', chapter_id=table[loop.index - 1].id) }}" class="btn btn-info" role="button" >Go</a></td>
+            <!-- list all questions -->
+            <td><a href="{{ url_for('list_all_questions', chapter_id=table[loop.index - 1].id) }}" class="btn btn-info" role="button" >Go</a></td>
         </tr>
 {% endfor %}
 </table> 
@@ -45,7 +48,7 @@
 </div>
 
 <div class="container">
-  <a class="btn btn-info" role="button" >Start Multi-Chapter Quiz</a>
+  <!-- <a class="btn btn-info" role="button" >Start Multi-Chapter Quiz</a> -->
   <a href="{{ url_for('add_chapter') }}" class="btn btn-info" role="button" >Add a Chapter</a>
   <a href="{{ url_for('list_books') }}" class="btn btn-info" role="button" >Back to My Books</a>
   <!-- <button type="button" class="btn btn-info">Button</button>
