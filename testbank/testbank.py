@@ -120,8 +120,8 @@ def welcome(data=''):
                     'solution_id INT(10) UNSIGNED NOT NULL, '
                     'add_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, '
                     'UNIQUE KEY (question_id, solution_id), '
-                    'FOREIGN KEY (question_id) REFERENCES Questions(id), '
-                    'FOREIGN KEY (solution_id) REFERENCES Options(id));')
+                    'FOREIGN KEY (question_id) REFERENCES Questions(id) ON DELETE CASCADE, '
+                    'FOREIGN KEY (solution_id) REFERENCES Options(id) ON DELETE CASCADE);')
         cur.execute('CREATE TABLE IF NOT EXISTS '
                     'Chapters_2_Errors ( '
                     'id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY UNIQUE, '

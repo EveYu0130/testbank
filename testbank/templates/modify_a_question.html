@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Please Login First</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="{{ url_for('static', filename='js/myscripts.js')}}"></script>
+  
+</head>
+<body>
+
+
+<div class="container">
+<!-- <form class="is-readonly">
+  <div class="form-group">
+    <label for="exampleInputPassword1">Full Name</label>
+    <input type="text" class="form-control is-disabled" id="exampleInputPassword1" placeholder="Name" value="Jon Stewart" >
+  </div>
+<div class="form-group">
+    <label for="exampleInputEmail1">Email address</label>
+    <input type="email" class="form-control is-disabled" id="exampleInputEmail1" placeholder="Email" value="MyEmail@MyDowmain.Com" >
+  </div>
+  <button type="button" class="btn btn-default btn-save js-save">Save</button>
+</form>
+</div> -->
+
+<form method="post" novalidate formnovalidate class="form" role="form" id='form' action="{{ url_for('list_all_questions_after_modify', qid=qid, sid=sid, b=oids[0], c=oids[1], d=oids[2], e=oids[3]) }}" >
+    <div class="form-group">
+      <label>Question: </label>
+        <input type="question" class="form-control is-disabled"  id="question" name="question" value="{{ table[0] }}">
+    </div>
+    <div class="form-group">
+      <label>OptA (correct): </label>
+        <input type="a" class="form-control is-disabled" id="a" name="a" value="{{ table[1] }}"> 
+    </div>
+    <div class="form-group">
+      <label>OptB: </label>
+        <input type="b" class="form-control is-disabled" id="b" name="b" value="{{ table[2] }}"> 
+      </div>
+    <div class="form-group">
+      <label>OptC: </label>
+        <input type="c" class="form-control is-disabled" id="c" name="c" value="{{ table[3] }}"> 
+      </div>
+    <div class="form-group">
+      <label>OptD: </label>
+        <input type="d" class="form-control is-disabled" id="d" name="d" value="{{ table[4] }}"> 
+      </div>
+    <div class="form-group">
+      <label>OptE:</label>
+       <input type="e" class="form-control is-disabled" id="e" name="e" value="{{ table[5] }}"> 
+    </div>
+
+
+    <button type="submit" class="btn btn-default btn-save js-save">Save</button>
+  </form>
+
+</body>
+</html>
+
