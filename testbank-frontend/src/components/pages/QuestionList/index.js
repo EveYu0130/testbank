@@ -56,13 +56,10 @@ class QuestionList extends React.Component {
         const { params } = this.props;
         var self = this;
         const data = new Promise(function(resolve, reject) {
-            fetch(`http://127.0.0.1:5000/list_questions?chapter_id=${params.chapterId}`)
+            fetch(`http://127.0.0.1:5000/list_all_questions?chapter_id=${params.chapterId}`)
             .then(function(response) {
                 if (response.status == 200) {
                     response.json().then(function(data) {
-                        console.log("response");
-                        console.log(data);
-                        console.log(Array.from(data));
                         resolve(data);
                         self.setState({
                             loading: false,
@@ -83,37 +80,31 @@ class QuestionList extends React.Component {
     render() {
         let data = [];
         this.state.questions.forEach(function(question) {
-            data.push(question);
+            data.push({
+                id: question.qid,
+                question: question.question
+            });
         });
-        // const data = [
-        //     {
-        //         id: '1',
-        //         name: 'Q1',
-        //     },
-        //     {
-        //         id: '2',
-        //         name: 'Q2',
-        //     },
-        //     {
-        //         id: '3',
-        //         name: 'Q3',
-        //     }
-        // ]
         const columns = [
             {
                 Header: 'ID',
                 accessor: 'id'
             },
             {
-                Header: 'Name',
-                accessor: 'name'
+                Header: 'Question',
+                accessor: 'question'
             }
         ]
         const { params, match } = this.props;
         return (
             <Wrapper>
-                <Header>Chapter</Header>
+                <Header>Questions</Header>
                 <Table columns={columns} data={data} />
+                <Link to={`${match.url}/quiz`}>
+                    <StyledButton>
+                        <ButtonLabel>Start Quiz</ButtonLabel>
+                    </StyledButton>
+                </Link>
                 <Link to={`${match.url}/questions/add`}>
                     <StyledButton>
                         <ButtonLabel>Add a Question</ButtonLabel>

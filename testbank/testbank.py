@@ -546,8 +546,19 @@ def list_all_questions(data='', methods=['GET', 'POST']):
         cur.execute("SELECT context FROM Options where id=" + str(sid) + ';')
         solution = cur.fetchall()[0][0]
         table.append({'qid': qid, 'question': question, 'solution': solution})
+    shuffle(qids)
+    global cur_qid_list
+    global cur_qid_list_tmp
+    cur_qid_list = qids
+    cur_qid_list_tmp = qids
     cur.close()
-    return render_template('view_all_questions.html', table=table)
+    response = app.response_class(
+        response=json.dumps(table),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+    # return render_template('view_all_questions.html', table=table)
 
 
 @app.route('/list_all_questions_after_delete', methods=['GET', 'POST'])
@@ -737,8 +748,13 @@ def at_question():
     cur.close()
     print(save[0][0])
     table.append(save[0][0])
-
-    return render_template('start_quiz.html', table=table)
+    response = app.response_class(
+        response=json.dumps(table),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+    # return render_template('start_quiz.html', table=table)
 
 @app.route('/answered_question', methods=['GET', 'POST'])
 def answered_question():
@@ -756,7 +772,7 @@ def answered_question():
         except db.IntegrityError:
             logging.warn("failed to insert values %s, %s", cur_chapter_id, cur_qid)
         cur.close()
-        return render_template('start_quiz.html', table=table, data='Wrong')
+        # return render_template('start_quiz.html', table=table, data='Wrong')
     else:
         db = mysql.connection
         cur = db.cursor()
@@ -767,4 +783,4 @@ def answered_question():
         except db.IntegrityError:
             logging.warn("failed to delete values %s, %s", cur_chapter_id, cur_qid)
         cur.close()
-        return render_template('start_quiz.html', table=table, data='Correct')
+        # return render_template('start_quiz.html', table=table, data='Correct')

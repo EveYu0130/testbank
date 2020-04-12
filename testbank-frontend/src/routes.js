@@ -9,6 +9,7 @@ import ChapterList from './components/pages/ChapterList';
 import AddChapter from './components/pages/AddChapter';
 import QuestionList from './components/pages/QuestionList';
 import AddQuestion from './components/pages/AddQuestion';
+import Quiz from './components/pages/Quiz';
 
 function routes() {
     return (
@@ -28,6 +29,7 @@ function routes() {
                                     <Route path={`${url}/:chapterId`} render={({ match }) => (
                                         <div>
                                             <Route path={`${match.url}`} component={() => <QuestionList params={{chapterId: match.params.chapterId, bookId: params.bookId}} /> } exact/>
+                                            <Route path={`${match.url}/quiz`} component={() => <Quiz params={{url: match.url}} /> } exact/>
                                             <Route path={`${match.url}/questions/add`} component={() => <AddQuestion params={{url: match.url}} /> } exact/>
                                         </div>
                                     )}/>
