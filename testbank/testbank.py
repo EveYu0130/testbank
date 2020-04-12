@@ -1,14 +1,33 @@
-from flask import Flask, request, render_template, url_for, redirect, Response, json
+import csv
+import os
+from io import TextIOWrapper
+from pathlib import Path
+
+from flask import Flask, request, render_template, url_for, redirect, flash, Response, json
 from flask_cors import CORS
 from flask_caching import Cache
 from flask_mysqldb import MySQL
 import logging
 from random import shuffle
 
+import urllib.request
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = 'upload/'
+ALLOWED_EXTENSIONS = {'csv'}
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 app = Flask(__name__)
 CORS(app)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.secret_key = "secret key"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 app.config['MYSQL_HOST'] = 'localhost'
@@ -38,6 +57,8 @@ table = None
 # app.config['APPLICATION_ROOT'] = "../html/index.html"
 @app.route('/', methods=['GET', 'POST'])
 def welcome(data=''):
+    if not Path(UPLOAD_FOLDER).is_dir():
+        os.mkdir(UPLOAD_FOLDER)
     db = mysql.connection
     cur = db.cursor()
     if test:
@@ -84,8 +105,8 @@ def welcome(data=''):
                     'book_id INT(10) UNSIGNED NOT NULL, '
                     'add_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, '
                     'UNIQUE KEY (user_id, book_id), '
-                    'FOREIGN KEY (book_id) REFERENCES Books(id), '
-                    'FOREIGN KEY (user_id) REFERENCES Users(id));')
+                    'FOREIGN KEY (book_id) REFERENCES Books(id) ON DELETE CASCADE, '
+                    'FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE);')
         cur.execute('CREATE TABLE IF NOT EXISTS '
                     'Books_2_Chapters ( '
                     'id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY UNIQUE, '
@@ -93,8 +114,8 @@ def welcome(data=''):
                     'chapter_id INT(10) UNSIGNED NOT NULL, '
                     'add_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, '
                     'UNIQUE KEY (book_id, chapter_id), '
-                    'FOREIGN KEY (book_id) REFERENCES Books(id), '
-                    'FOREIGN KEY (chapter_id) REFERENCES Chapters(id));')
+                    'FOREIGN KEY (book_id) REFERENCES Books(id) ON DELETE CASCADE, '
+                    'FOREIGN KEY (chapter_id) REFERENCES Chapters(id) ON DELETE CASCADE);')
         cur.execute('CREATE TABLE IF NOT EXISTS '
                     'Chapters_2_Questions ( '
                     'id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY UNIQUE, '
@@ -102,8 +123,8 @@ def welcome(data=''):
                     'question_id INT(10) UNSIGNED NOT NULL, '
                     'add_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, '
                     'UNIQUE KEY (chapter_id, question_id), '
-                    'FOREIGN KEY (question_id) REFERENCES Questions(id), '
-                    'FOREIGN KEY (chapter_id) REFERENCES Chapters(id));')
+                    'FOREIGN KEY (question_id) REFERENCES Questions(id) ON DELETE CASCADE, '
+                    'FOREIGN KEY (chapter_id) REFERENCES Chapters(id) ON DELETE CASCADE);')
         cur.execute('CREATE TABLE IF NOT EXISTS '
                     'Questions_2_Options ( '
                     'id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY UNIQUE, '
@@ -111,8 +132,8 @@ def welcome(data=''):
                     'option_id INT(10) UNSIGNED NOT NULL, '
                     'add_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, '
                     'UNIQUE KEY (question_id, option_id), '
-                    'FOREIGN KEY (question_id) REFERENCES Questions(id), '
-                    'FOREIGN KEY (option_id) REFERENCES Options(id));')
+                    'FOREIGN KEY (question_id) REFERENCES Questions(id) ON DELETE CASCADE, '
+                    'FOREIGN KEY (option_id) REFERENCES Options(id) ON DELETE CASCADE);')
         cur.execute('CREATE TABLE IF NOT EXISTS '
                     'Questions_2_Solutions ( '
                     'id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY UNIQUE, '
@@ -257,6 +278,79 @@ def add_question(data=''):
     return render_template('add_question.html', data=data)
 
 
+@app.route('/upload_file', methods=['GET', 'POST'])
+def upload_form():
+    print(request.method)
+    return render_template('upload.html')
+
+
+@app.route('/uploaded', methods=['POST'])
+def upload_file():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            print('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        if file.filename == '':
+            print('No file selected for uploading')
+            flash('No file selected for uploading')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            print(file.filename)
+            filename = file.filename
+            # load_csv(file.filename)
+            tmp_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(tmp_path)
+
+            global cur_chapter_id
+            print(cur_chapter_id)
+
+            with open(tmp_path) as csvfile:
+                readCSV = csv.reader(csvfile, delimiter=',')
+                for row in readCSV:
+                    add_a_question(question=row[0], a=row[2], b=row[3], c=row[4], d=row[5], solution=row[1])
+                    print(row)
+
+            # csv_reader = csv.reader(file(tmp_path))
+            # for row in csv_reader:
+            #     print(row)
+
+
+            print('File successfully uploaded')
+            flash('File successfully uploaded')
+            return redirect('/upload_file')
+        else:
+            print('Allowed file types are txt, pdf, png, jpg, jpeg, gif')
+            flash('Allowed file types are txt, pdf, png, jpg, jpeg, gif')
+            return redirect(request.url)
+
+
+def load_csv(filename):
+    print(filename)
+    files = request.files['file']
+    csv_file = TextIOWrapper(files, encoding='utf-8')
+    csv_reader = csv.reader(csv_file, delimiter=',')
+    for row in csv_reader:
+        print(row)
+    #
+    #
+    #
+    # files = request.files[filename]
+    # reader = csv.DictReader(files)
+    # data = [row for row in reader]
+    # print(data)
+    # # obj = request.files['fileName'].read()
+    # # csv_data = csv.reader(file)
+    # # for row in csv_data:
+    # #     print(row)
+    print('Done')
+#
+# def upload_question(data=''):
+#     return render_template('add_question.html', data=data)
+
+
 @app.route('/adding_chapter', methods=['GET', 'POST'])
 def adding_chapter():
     name = request.form.get("name")
@@ -324,15 +418,8 @@ def adding_book(data=''):
     return list_books(data='Successfully Adding a Book!')
 
 
-@app.route('/adding_question', methods=['GET', 'POST'])
-def adding_question():
-    question = request.form.get("question")
-    a = request.form.get("a")
-    b = request.form.get("b")
-    c = request.form.get("c")
-    d = request.form.get("d")
-    solution = request.form.get("solution")
-
+def add_a_question(question, a, b, c, d, solution):
+    global cur_chapter_id
     db = mysql.connection
     cur = db.cursor()
     try:
@@ -463,6 +550,147 @@ def adding_question():
         logging.warn("failed to insert values %s, %s", question_id, solution_id)
     cur.close()
 
+@app.route('/adding_question', methods=['GET', 'POST'])
+def adding_question():
+    question = request.form.get("question")
+    a = request.form.get("a")
+    b = request.form.get("b")
+    c = request.form.get("c")
+    d = request.form.get("d")
+    solution = request.form.get("solution")
+
+    add_a_question(question, a, b, c, d, solution)
+
+    # db = mysql.connection
+    # cur = db.cursor()
+    # try:
+    #     cur.execute("""insert into Questions (context) values (%s)""", (question,))
+    #     db.commit()
+    # except db.IntegrityError:
+    #     logging.warn("failed to insert values %s", question)
+    # cur.execute("SELECT id FROM Questions ORDER BY id DESC LIMIT 1")
+    # question_id = cur.fetchall()[0][0]
+    # print(question_id)
+    # cur.close()
+    #
+    # cur = db.cursor()
+    # try:
+    #     cur.execute("""insert into Options (context) values (%s)""", (a,))
+    #     db.commit()
+    # except db.IntegrityError:
+    #     logging.warn("failed to insert values %s", a)
+    # cur.execute("SELECT id FROM Options ORDER BY id DESC LIMIT 1")
+    # a_id = cur.fetchall()[0][0]
+    # print(a_id)
+    # cur.close()
+    #
+    # cur = db.cursor()
+    # try:
+    #     cur.execute("""insert into Options (context) values (%s)""", (b,))
+    #     db.commit()
+    # except db.IntegrityError:
+    #     logging.warn("failed to insert values %s", b)
+    # cur.execute("SELECT id FROM Options ORDER BY id DESC LIMIT 1")
+    # b_id = cur.fetchall()[0][0]
+    # print(b_id)
+    # cur.close()
+    #
+    # cur = db.cursor()
+    # try:
+    #     cur.execute("""insert into Options (context) values (%s)""", (c,))
+    #     db.commit()
+    # except db.IntegrityError:
+    #     logging.warn("failed to insert values %s", c)
+    # cur.execute("SELECT id FROM Options ORDER BY id DESC LIMIT 1")
+    # c_id = cur.fetchall()[0][0]
+    # print(c_id)
+    # cur.close()
+    #
+    # cur = db.cursor()
+    # try:
+    #     cur.execute("""insert into Options (context) values (%s)""", (d,))
+    #     db.commit()
+    # except db.IntegrityError:
+    #     logging.warn("failed to insert values %s", d)
+    # cur.execute("SELECT id FROM Options ORDER BY id DESC LIMIT 1")
+    # d_id = cur.fetchall()[0][0]
+    # print(d_id)
+    # cur.close()
+    #
+    # cur = db.cursor()
+    # try:
+    #     cur.execute("""insert into Options (context) values (%s)""", (solution,))
+    #     db.commit()
+    # except db.IntegrityError:
+    #     logging.warn("failed to insert values %s", solution)
+    # cur.execute("SELECT id FROM Options ORDER BY id DESC LIMIT 1")
+    # solution_id = cur.fetchall()[0][0]
+    # print(solution_id)
+    # cur.close()
+    #
+    # cur = db.cursor()
+    # sql_insert = """insert into Chapters_2_Questions (chapter_id, question_id) values (%s,%s)"""
+    # try:
+    #     cur.execute(sql_insert, (cur_chapter_id, question_id))
+    #     db.commit()
+    # except db.IntegrityError:
+    #     logging.warn("failed to insert values %s, %s", cur_chapter_id, question_id)
+    # cur.close()
+    #
+    # cur = db.cursor()
+    # sql_insert = """insert into Questions_2_Options (question_id, option_id) values (%s,%s)"""
+    # try:
+    #     cur.execute(sql_insert, (question_id, a_id))
+    #     db.commit()
+    # except db.IntegrityError:
+    #     logging.warn("failed to insert values %s, %s", question_id, a_id)
+    # cur.close()
+    #
+    # cur = db.cursor()
+    # sql_insert = """insert into Questions_2_Options (question_id, option_id) values (%s,%s)"""
+    # try:
+    #     cur.execute(sql_insert, (question_id, b_id))
+    #     db.commit()
+    # except db.IntegrityError:
+    #     logging.warn("failed to insert values %s, %s", question_id, b_id)
+    # cur.close()
+    #
+    # cur = db.cursor()
+    # sql_insert = """insert into Questions_2_Options (question_id, option_id) values (%s,%s)"""
+    # try:
+    #     cur.execute(sql_insert, (question_id, c_id))
+    #     db.commit()
+    # except db.IntegrityError:
+    #     logging.warn("failed to insert values %s, %s", question_id, c_id)
+    # cur.close()
+    #
+    # cur = db.cursor()
+    # sql_insert = """insert into Questions_2_Options (question_id, option_id) values (%s,%s)"""
+    # try:
+    #     cur.execute(sql_insert, (question_id, d_id))
+    #     db.commit()
+    # except db.IntegrityError:
+    #     logging.warn("failed to insert values %s, %s", question_id, d_id)
+    # cur.close()
+    #
+    # cur = db.cursor()
+    # sql_insert = """insert into Questions_2_Options (question_id, option_id) values (%s,%s)"""
+    # try:
+    #     cur.execute(sql_insert, (question_id, solution_id))
+    #     db.commit()
+    # except db.IntegrityError:
+    #     logging.warn("failed to insert values %s, %s", question_id, solution_id)
+    # cur.close()
+    #
+    # cur = db.cursor()
+    # sql_insert = """insert into Questions_2_Solutions (question_id, solution_id) values (%s,%s)"""
+    # try:
+    #     cur.execute(sql_insert, (question_id, solution_id))
+    #     db.commit()
+    # except db.IntegrityError:
+    #     logging.warn("failed to insert values %s, %s", question_id, solution_id)
+    # cur.close()
+
     return list_all_questions(data='Successfully Adding a Question!')
 
 
@@ -523,7 +751,6 @@ def list_questions(data=''):
     )
     return response
     # return render_template('list_questions.html', data=data)
-
 
 
 @app.route('/list_all_questions', methods=['GET', 'POST'])
@@ -601,10 +828,9 @@ def list_all_questions_after_delete(data='', methods=['GET', 'POST']):
     return render_template('view_all_questions.html', table=table)
 
 
-
 @app.route('/modify_question', methods=['GET', 'POST'])
 def modify_question(methods=['GET', 'POST']):
-    table=[]
+    table = []
     qid = int(request.args.get('question_id', 0))
     print(qid)
     db = mysql.connection
@@ -635,6 +861,7 @@ def modify_question(methods=['GET', 'POST']):
     print(table)
     return render_template('modify_a_question.html', table=table, qid=qid, sid=sid, oids=oid_list)
 
+
 @app.route('/list_all_questions_after_modify', methods=['GET', 'POST'])
 def list_all_questions_after_modify(data='modify successfully', methods=['GET', 'POST']):
     qid = int(request.args.get('qid', 0))
@@ -646,12 +873,12 @@ def list_all_questions_after_modify(data='modify successfully', methods=['GET', 
     oids = [bid, cid, did, eid]
     question = request.form.get("question")
     print(question)
-    a = request.form.get("a")#solution
+    a = request.form.get("a")  # solution
     b = request.form.get("b")
     c = request.form.get("c")
     d = request.form.get("d")
     e = request.form.get("e")
-    new_opts = [b,c,d,e]
+    new_opts = [b, c, d, e]
     print(new_opts)
     db = mysql.connection
     cur = db.cursor()
@@ -664,7 +891,7 @@ def list_all_questions_after_modify(data='modify successfully', methods=['GET', 
     for i in range(4):
         oid = oids[i]
         new_opt = new_opts[i]
-    # for (oid, new_opt) in (oids, new_opts):
+        # for (oid, new_opt) in (oids, new_opts):
         cur.execute(sql_update, (new_opt, oid))
         db.commit()
     cur.close()
@@ -755,6 +982,7 @@ def at_question():
     )
     return response
     # return render_template('start_quiz.html', table=table)
+
 
 @app.route('/answered_question', methods=['GET', 'POST'])
 def answered_question():
