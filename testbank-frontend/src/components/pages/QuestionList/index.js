@@ -43,37 +43,60 @@ const ButtonLabel = styled.label`
   margin-left: 5px;
 `;
 
+const LabelWrapper = styled.div`
+    display:block;
+    margin-bottom: 20px;
+`;
+
+const Label = styled.label`
+    font: 13px Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	padding-top: 8px;
+	padding-right: 25px;
+`;
+
 class QuestionList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             loading: true,
-            questions: []
+            questions: [],
+            errors: [],
+            showErrors: false
         };
+
+        this.handleToggleShowErrors = this.handleToggleShowErrors.bind(this);
     }
 
     componentDidMount() {
         const { params } = this.props;
         var self = this;
-        const data = new Promise(function(resolve, reject) {
-            fetch(`http://127.0.0.1:5000/list_all_questions?chapter_id=${params.chapterId}`)
-            .then(function(response) {
-                if (response.status == 200) {
-                    response.json().then(function(data) {
-                        resolve(data);
-                        self.setState({
-                            loading: false,
-                            questions: Array.from(data)
-                        });
+        Promise.all([
+            fetch(`http://127.0.0.1:5000/list_all_questions?chapter_id=${params.chapterId}`),
+            fetch(`http://127.0.0.1:5000/list_errors?chapter_id=${params.chapterId}`)
+        ]).then(([questionsResponse, errorsResponse]) => {
+            if (questionsResponse.status == 200 && errorsResponse.status == 200) {
+                questionsResponse.json().then(function(data) {
+                    self.setState({
+                        questions: Array.from(data)
                     });
-                } else {
-                    reject([]);
-                }
-            }).catch(error => {
-                reject([]);
-                // console.log(error);
-            });
-        })
+                });
+                errorsResponse.json().then(function(data) {
+                    self.setState({
+                        loading: false,
+                        errors: Array.from(data)
+                    });
+                });
+            }
+        }).catch(error => {
+            console.log(error);
+        });
+    }
+
+    handleToggleShowErrors() {
+        const { showErrors, errors } = this.state;
+        const { params } = this.props;
+        this.setState({showErrors: !showErrors});
     }
 
 
@@ -82,7 +105,8 @@ class QuestionList extends React.Component {
         const { params, match } = this.props;
         let data = [];
         var self = this;
-        this.state.questions.forEach(function(question) {
+        const questions = this.state.showErrors? this.state.errors : this.state.questions;
+        questions.forEach(function(question) {
             data.push({
                 id: question.qid,
                 question: question.question,
@@ -111,17 +135,29 @@ class QuestionList extends React.Component {
         return (
             <Wrapper>
                 <Header>Questions</Header>
+                <LabelWrapper>
+                    <Label>Error Book</Label>
+                    <input
+                        name="errors"
+                        type="checkbox"
+                        checked={this.state.showErrors}
+                        onChange={this.handleToggleShowErrors} />
+                </LabelWrapper>
                 <Table columns={columns} data={data} />
-                <Link to={`${match.url}/quiz`}>
-                    <StyledButton>
-                        <ButtonLabel>Start Quiz</ButtonLabel>
-                    </StyledButton>
-                </Link>
-                <Link to={`${match.url}/questions/add`}>
-                    <StyledButton>
-                        <ButtonLabel>Add a Question</ButtonLabel>
-                    </StyledButton>
-                </Link>
+                {!this.state.showErrors && (
+                    <Link to={`${match.url}/quiz`}>
+                        <StyledButton>
+                            <ButtonLabel>Start Quiz</ButtonLabel>
+                        </StyledButton>
+                    </Link>
+                )}
+                {!this.state.showErrors && (
+                    <Link to={`${match.url}/questions/add`}>
+                        <StyledButton>
+                            <ButtonLabel>Add a Question</ButtonLabel>
+                        </StyledButton>
+                    </Link>
+                )}
                 <Link to={`/books/${params.bookId}`}>
                     <StyledButton>
                         <ButtonLabel>Back</ButtonLabel>

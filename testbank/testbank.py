@@ -918,15 +918,30 @@ def list_errors(data=''):
     print("received book id is " + str(request.args.get('chapter_id', cur_chapter_id)))
     cur = db.cursor()
     cur.execute("SELECT error_id FROM Chapters_2_Errors where chapter_id=" + str(cur_chapter_id) + ';')
-    save = cur.fetchall()
-    save = [x[0] for x in list(save)]
-    shuffle(save)
-    cur.close()
+    qids = cur.fetchall()
+    qids = [x[0] for x in list(qids)]
+    table = []
+    for qid in qids:
+        cur.execute("SELECT context FROM Questions where id=" + str(qid) + ';')
+        question = cur.fetchall()[0][0]
+
+        cur.execute("SELECT solution_id FROM Questions_2_Solutions where question_id=" + str(qid) + ';')
+        sid = cur.fetchall()[0][0]
+        cur.execute("SELECT context FROM Options where id=" + str(sid) + ';')
+        solution = cur.fetchall()[0][0]
+        table.append({'qid': qid, 'question': question, 'solution': solution})
+    shuffle(qids)
     global cur_qid_list
     global cur_qid_list_tmp
-    cur_qid_list = save
-    cur_qid_list_tmp = save
-    return render_template('list_questions.html', data=data)
+    cur_qid_list = qids
+    cur_qid_list_tmp = qids
+    cur.close()
+    response = app.response_class(
+        response=json.dumps(table),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
 
 
 @app.route('/at_question', methods=['GET', 'POST'])
