@@ -549,6 +549,8 @@ def add_a_question(question, a, b, c, d, solution):
     except db.IntegrityError:
         logging.warn("failed to insert values %s, %s", question_id, solution_id)
     cur.close()
+    response = Response(status=200)
+    return response
 
 @app.route('/adding_question', methods=['GET', 'POST'])
 def adding_question():
@@ -802,6 +804,7 @@ def list_all_questions_after_delete(data='', methods=['GET', 'POST']):
         cur.execute(sql_delete, (cur_chapter_id, qid))
         db.commit()
     except db.IntegrityError:
+        response = Response(status=400)
         logging.warn("failed to delete values %s, %s", cur_chapter_id, qid)
 
     sql_delete = """delete from Chapters_2_Errors where (chapter_id, error_id) = (%s,%s)"""
@@ -809,23 +812,26 @@ def list_all_questions_after_delete(data='', methods=['GET', 'POST']):
         cur.execute(sql_delete, (cur_chapter_id, qid))
         db.commit()
     except db.IntegrityError:
+        response = Response(status=400)
         logging.warn("failed to delete values %s, %s", cur_chapter_id, qid)
+    response = Response(status=200)
 
-    cur.execute("SELECT question_id FROM Chapters_2_Questions where chapter_id=" + str(cur_chapter_id) + ';')
-    qids = cur.fetchall()
-    qids = [x[0] for x in list(qids)]
-    table = []
-    for qid in qids:
-        cur.execute("SELECT context FROM Questions where id=" + str(qid) + ';')
-        question = cur.fetchall()[0][0]
+    # cur.execute("SELECT question_id FROM Chapters_2_Questions where chapter_id=" + str(cur_chapter_id) + ';')
+    # qids = cur.fetchall()
+    # qids = [x[0] for x in list(qids)]
+    # table = []
+    # for qid in qids:
+    #     cur.execute("SELECT context FROM Questions where id=" + str(qid) + ';')
+    #     question = cur.fetchall()[0][0]
 
-        cur.execute("SELECT solution_id FROM Questions_2_Solutions where question_id=" + str(qid) + ';')
-        sid = cur.fetchall()[0][0]
-        cur.execute("SELECT context FROM Options where id=" + str(sid) + ';')
-        solution = cur.fetchall()[0][0]
-        table.append({'qid': qid, 'question': question, 'solution': solution})
+    #     cur.execute("SELECT solution_id FROM Questions_2_Solutions where question_id=" + str(qid) + ';')
+    #     sid = cur.fetchall()[0][0]
+    #     cur.execute("SELECT context FROM Options where id=" + str(sid) + ';')
+    #     solution = cur.fetchall()[0][0]
+    #     table.append({'qid': qid, 'question': question, 'solution': solution})
     cur.close()
-    return render_template('view_all_questions.html', table=table)
+    return response
+    # return render_template('view_all_questions.html', table=table)
 
 
 @app.route('/modify_question', methods=['GET', 'POST'])
@@ -859,7 +865,13 @@ def modify_question(methods=['GET', 'POST']):
         print(option[0][0])
         table.append(option[0][0])
     print(table)
-    return render_template('modify_a_question.html', table=table, qid=qid, sid=sid, oids=oid_list)
+    response = app.response_class(
+        response=json.dumps(table),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+    # return render_template('modify_a_question.html', table=table, qid=qid, sid=sid, oids=oid_list)
 
 
 @app.route('/list_all_questions_after_modify', methods=['GET', 'POST'])
@@ -1012,3 +1024,121 @@ def answered_question():
             logging.warn("failed to delete values %s, %s", cur_chapter_id, cur_qid)
         cur.close()
         # return render_template('start_quiz.html', table=table, data='Correct')
+
+@app.route('/questions', methods=['GET', 'POST'])
+def list_all_questions2(data='', methods=['GET', 'POST']):
+    db = mysql.connection
+    global cur_chapter_id
+    cur_chapter_id = int(request.args.get('chapter_id', cur_chapter_id))
+    print("received book id is " + str(request.args.get('chapter_id', cur_chapter_id)))
+    cur = db.cursor()
+    cur.execute("SELECT question_id FROM Chapters_2_Questions where chapter_id=" + str(cur_chapter_id) + ';')
+    qids = cur.fetchall()
+    qids = [x[0] for x in list(qids)]
+    table = []
+    for qid in qids:
+        cur.execute("SELECT context FROM Questions where id=" + str(qid) + ';')
+        question = cur.fetchall()[0][0]
+
+        cur.execute("SELECT option_id FROM Questions_2_Options where question_id=" + str(qid) + ';')
+        save = cur.fetchall()
+        oid_list = [x[0] for x in list(save)]
+        shuffle(oid_list)
+
+        options = []
+        for oid in oid_list:
+            cur.execute("SELECT context FROM Options where id=" + str(oid) + ';')
+            option = cur.fetchall()
+            options.append(option[0][0])
+
+        cur.execute("SELECT solution_id FROM Questions_2_Solutions where question_id=" + str(qid) + ';')
+        sid = cur.fetchall()[0][0]
+        cur.execute("SELECT context FROM Options where id=" + str(sid) + ';')
+        solution = cur.fetchall()[0][0]
+        table.append({'qid': qid, 'question': question, 'options': options, 'solution': solution})
+    shuffle(qids)
+    global cur_qid_list
+    global cur_qid_list_tmp
+    cur_qid_list = qids
+    cur_qid_list_tmp = qids
+    cur.close()
+    response = app.response_class(
+        response=json.dumps(table),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+
+@app.route('/question', methods=['GET', 'POST'])
+def question():
+    qid = int(request.args.get('qid', 0))
+    db = mysql.connection
+    cur = db.cursor()
+    table = []
+    cur.execute("SELECT context FROM Questions where id=" + str(qid) + ';')
+    save = cur.fetchall()
+    q_context = save[0][0]
+    table.append({"id": qid, "context": q_context})
+
+    cur.execute("SELECT option_id FROM Questions_2_Options where question_id=" + str(qid) + ';')
+    save = cur.fetchall()
+    save = [x[0] for x in list(save)]
+    oid_list = save
+    shuffle(oid_list)
+
+    for oid in oid_list:
+        cur.execute("SELECT context FROM Options where id=" + str(oid) + ';')
+        save = cur.fetchall()
+        table.append({"id": oid, "context": save[0][0]})
+
+    cur.execute("SELECT solution_id FROM Questions_2_Solutions where question_id=" + str(qid) + ';')
+    save = cur.fetchall()
+    sid = save[0][0]
+
+    cur.execute("SELECT context FROM Options where id=" + str(sid) + ';')
+    save = cur.fetchall()
+    table.append({"id": sid, "context": save[0][0]})
+    cur.close()
+    response = app.response_class(
+        response=json.dumps(table),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+
+@app.route('/modify', methods=['GET', 'POST'])
+def modify(data='modify successfully', methods=['GET', 'POST']):
+    qid = int(request.args.get('qid', 0))
+    aid = int(request.args.get('aid', 0))
+    bid = int(request.args.get('bid', 0))
+    cid = int(request.args.get('cid', 0))
+    did = int(request.args.get('did', 0))
+    sid = int(request.args.get('sid', 0))
+    oids = [aid, bid, cid, did]
+    print(oids)
+    question = request.form.get("question")
+    a = request.form.get("a")
+    b = request.form.get("b")
+    c = request.form.get("c")
+    d = request.form.get("d")
+    solution = request.form.get("solution")
+    new_opts = [a, b, c, d]
+    db = mysql.connection
+    cur = db.cursor()
+    sql_update = """update questions set context = %s where id = %s"""
+    cur.execute(sql_update, (question, qid))
+    db.commit()
+    sql_update = """update Questions_2_Solutions set solution_id = %s where question_id = %s"""
+    cur.execute(sql_update, (sid, qid))
+    db.commit()
+    sql_update = """update options set context = %s where id = %s"""
+    for i in range(4):
+        oid = oids[i]
+        new_opt = new_opts[i]
+        # for (oid, new_opt) in (oids, new_opts):
+        cur.execute(sql_update, (new_opt, oid))
+        db.commit()
+    cur.close()
+    response = Response(status=200)
+    return response
+    # return redirect(url_for('list_all_questions', data='successfully modified a question'))

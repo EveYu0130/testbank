@@ -88,30 +88,13 @@ class ChapterList extends React.Component {
     render() {
         let data = [];
         const url = this.props.match.url;
-        console.log(url);
+        console.log(this.props);
         this.state.chapters.forEach(function(chapter) {
             data.push({
                 ...chapter,
                 link: <Link to={`${url}/chapters/${chapter.id}`}>Go</Link>
             });
         });
-        // const data = [
-        //     {
-        //         id: '1',
-        //         name: 'Chapter1',
-        //         link: <Link to="/list_questions?chapter_id=1">Go</Link>
-        //     },
-        //     {
-        //         id: '2',
-        //         name: 'Chapter2',
-        //         link: <Link to="/list_questions?chapter_id=2">Go</Link>
-        //     },
-        //     {
-        //         id: '3',
-        //         name: 'Chapter3',
-        //         link: <Link to="/list_questions?chapter_id=3">Go</Link>
-        //     }
-        // ]
         const columns = [
             {
                 Header: 'ID',

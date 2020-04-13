@@ -59,32 +59,22 @@ class QuestionGroup extends React.Component {
         super(props);
     
         this.state = {
-            question: this.props.question,
-            options: this.props.options.map(option => {
-                return {
-                    value: option,
-                    checked: false
-                }
-            }),
-            answer: ''
+            answer: '',
+            showSolution: false
         }
     
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleToggleShowSolution = this.handleToggleShowSolution.bind(this);
     }
 
     handleChange(e) {
-        let options = this.state.options;
+        const { options } = this.props;
         options.forEach(option => {
-            if (option.value === e.target.value) {
-                option.checked = e.target.checked;
-                this.setState({answer: option.value});
-            } else {
-                option.checked = false;
+            if (option === e.target.value) {
+                this.setState({answer: option});
             }
         });
-        console.log(options);
-        this.setState({options: options});
     }
 
     handleSubmit(event) {
@@ -100,8 +90,14 @@ class QuestionGroup extends React.Component {
         });
     }
 
+    handleToggleShowSolution() {
+        const { showSolution } = this.state;
+        this.setState({showSolution: !showSolution});
+    }
+
     render() {
-        const { question, options } = this.state;
+        console.log(this.props);
+        const { question, options, solution } = this.props;
         return (
             <form onSubmit={this.handleSubmit}>
                     <LabelWrapper>
@@ -112,8 +108,8 @@ class QuestionGroup extends React.Component {
                             Array.from(options).map(option => (
                                 <LabelWrapper>
                                     <Label>
-                                        <CheckBox onChange={this.handleChange} {...option}/>
-                                        {option.value}
+                                        <CheckBox onChange={this.handleChange} checked={option === this.state.answer} value={option}/>
+                                        {option}
                                     </Label>
                                 </LabelWrapper>
                             ))
@@ -122,6 +118,20 @@ class QuestionGroup extends React.Component {
                     <StyledButton type="submit" value="Submit" disabled={!this.state.answer}>
                         <ButtonLabel>Submit</ButtonLabel>
                     </StyledButton>
+                    <div>
+                        <StyledButton onClick={this.handleToggleShowSolution}>
+                            {this.state.showSolution ? (
+                                <ButtonLabel>Hide Solution</ButtonLabel>
+                            ) : (
+                                <ButtonLabel>Show Solution</ButtonLabel>
+                            )}
+                        </StyledButton>
+                        {this.state.showSolution && (
+                            <LabelWrapper>
+                                <Label>{solution}</Label>
+                            </LabelWrapper>
+                        )}
+                    </div>
             </form>
         );
     }

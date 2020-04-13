@@ -8,8 +8,9 @@ import AddBook from './components/pages/AddBook';
 import ChapterList from './components/pages/ChapterList';
 import AddChapter from './components/pages/AddChapter';
 import QuestionList from './components/pages/QuestionList';
-import AddQuestion from './components/pages/AddQuestion';
-import Quiz from './components/pages/Quiz';
+import UpsertQuestion from './components/pages/UpsertQuestion';
+import QuizList from './components/pages/QuizList';
+import QuestionDetail from './components/pages/QuestionDetail';
 
 function routes() {
     return (
@@ -23,14 +24,24 @@ function routes() {
                     <Route path={`${url}/:bookId`} render={({match: {url, params} }) => (
                         <div>
                             <Route path={`${url}`} component={() => <ChapterList params={params} /> } exact />
-                            <Route path={`${url}/chapters`} render={({match: {url} }) => (
+                            <Route path={`${url}/chapters`} render={({match, bookId=params.bookId}) => (
                                 <div>
-                                    <Route path={`${url}/add`} component={() => <AddChapter params={params} /> } exact/>
-                                    <Route path={`${url}/:chapterId`} render={({ match }) => (
+                                    <Route path={`${match.url}/add`} component={() => <AddChapter params={{bookId: bookId}} /> } exact/>
+                                    <Route path={`${match.url}/:chapterId(${"\\d+"})`} render={({match: {url, params} }) => (
                                         <div>
-                                            <Route path={`${match.url}`} component={() => <QuestionList params={{chapterId: match.params.chapterId, bookId: params.bookId}} /> } exact/>
-                                            <Route path={`${match.url}/quiz`} component={() => <Quiz params={{url: match.url}} /> } exact/>
-                                            <Route path={`${match.url}/questions/add`} component={() => <AddQuestion params={{url: match.url}} /> } exact/>
+                                            <Route path={`${url}`} component={() => <QuestionList params={{chapterId: params.chapterId, bookId: bookId}} /> } exact/>
+                                            <Route path={`${url}/quiz`} component={() => <QuizList params={{chapterId: params.chapterId, bookId: bookId}} /> } exact/>
+                                            <Route path={`${url}/questions`} render={({match, chapterId=params.chapterId }) => (
+                                                <div>
+                                                    <Route path={`${match.url}/add`} component={() => <UpsertQuestion params={{chapterId: chapterId, bookId: bookId}} /> } exact/>
+                                                    <Route path={`${match.url}/:questionId(${"\\d+"})`} render={({match: {url, params} }) => (
+                                                        <div>
+                                                            <Route path={`${url}`} component={() => <QuestionDetail params={{questionId:params.questionId, chapterId: chapterId, bookId: bookId}} /> } exact/>
+                                                            <Route path={`${url}/modify`} component={(props) => <UpsertQuestion {...props} params={{questionId:params.questionId, chapterId: chapterId, bookId: bookId}} /> } exact/>
+                                                        </div>
+                                                    )}/>
+                                                </div>
+                                            )} />
                                         </div>
                                     )}/>
                                 </div>

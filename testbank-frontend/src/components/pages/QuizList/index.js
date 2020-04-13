@@ -1,8 +1,9 @@
 import React from 'react';
 import Table from '../../molecules/Table';
 import { Link, withRouter } from 'react-router-dom';
-import styled, { keyframes, css } from 'styled-components';
 import Button from '../../atoms/Button';
+import QuestionGroup from '../../molecules/QuestionGroup';
+import styled, { keyframes, css } from 'styled-components';
 
 const Wrapper = styled.div`
     box-sizing: border-box;
@@ -25,30 +26,39 @@ const Header = styled.h1`
     // width: 20%;
 `;
 
-const Text = styled.h3`
-    // background: #43D1AF;
-    padding: 20px 0;
-    font-weight: 300;
-    text-align: center;
-    margin: -16px -16px 16px -16px;
-    // width: 20%;
-`;
-
 const StyledButton = styled(Button)`
   color: #fff;
   flex-shrink: 0;
   padding: 8px 16px;
   justify-content: center;
-  margin: 2% 1%;
+  margin-bottom: 10px;
   width: 200px;
+  margin: 2% 1%;
 
   @media (max-width: 375px) {
     height: 52px;
+  }
+
+  &:disabled {
+    opacity: 0.65; 
+    cursor: not-allowed;
   }
 `;
 
 const ButtonLabel = styled.label`
   margin-left: 5px;
+`;
+
+const LabelWrapper = styled.div`
+    display:block;
+    margin-bottom: 20px;
+`;
+
+const Label = styled.label`
+    font: 13px Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	padding-top: 8px;
+	padding-right: 25px;
 `;
 
 const spin = keyframes`
@@ -77,89 +87,87 @@ const Spinner = styled.div`
   transition: border-top-color 0.5s linear, border-right-color 0.5s linear;
 `;
 
-const TableWrapper = styled.div`
-text-align: center;
-`;
-
-class BookList extends React.Component {
+class QuizList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             loading: true,
-            books: []
+            questions: [],
+            current_question_idx: 0,
+            current_question: '',
+            current_options: [],
+            current_solution: ''
         };
+
+        this.handleClickNext = this.handleClickNext.bind(this);
     }
 
     componentDidMount() {
+        const { params } = this.props;
         var self = this;
         const data = new Promise(function(resolve, reject) {
-            fetch('http://127.0.0.1:5000/list_books')
+            fetch(`http://127.0.0.1:5000/questions?chapter_id=${params.chapterId}`)
             .then(function(response) {
                 if (response.status == 200) {
                     response.json().then(function(data) {
                         resolve(data);
+                        console.log(data);
                         self.setState({
                             loading: false,
-                            books: Array.from(data)
+                            questions: Array.from(data),
+                            current_question_idx: 0,
+                            current_question: Array.from(data)[0].question,
+                            current_options: Array.from(data)[0].options,
+                            current_solution: Array.from(data)[0].solution
                         });
                     });
                 } else {
                     reject([]);
                 }
             }).catch(error => {
-                // console.log(error);
                 reject([]);
+                // console.log(error);
             });
         })
     }
 
+    handleClickNext() {
+        const { current_question_idx, questions } = this.state;
+        this.setState({
+            current_question_idx: current_question_idx+1,
+            current_question: questions[current_question_idx+1].question,
+            current_options: questions[current_question_idx+1].options,
+            current_solution: questions[current_question_idx+1].solution
+        });
+    }
+
 
     render() {
-        let data = [];
-        const url = this.props.match.url;
-        this.state.books.forEach(function(book) {
-            data.push({
-                ...book,
-                link: <Link to={`${url}/${book.id}`}>Go</Link>
-            });
-        });
-        const columns = [
-            {
-                Header: 'Category',
-                accessor: 'category'
-            },
-            {
-                Header: 'Number',
-                accessor: 'number'
-            },
-            {
-                Header: 'Name',
-                accessor: 'name'
-            },
-            {
-                Header: 'Link',
-                accessor: 'link'
-            }
-        ]
+        const { current_question, current_options, current_solution} = this.state;
+        console.log(this.state);
+        const { params } = this.props;
+        const { bookId, chapterId } = params;
         return (
             <Wrapper>
-                <Header>My Test Banks</Header>
-                <Text>Here is the list of books you have uploaded</Text>
+                <Header>Quiz</Header>
                 <div>
                     {this.state.loading ? (
                         <Spinner/>
                     ) : (
-                        <Table columns={columns} data={data} />
+                        <QuestionGroup question={current_question} options={current_options} solution={current_solution}/>
                     )}
                 </div>
-                <Link to="/books/add">
+                <Link to={`/books/${bookId}/chapters/${chapterId}`}>
                     <StyledButton>
-                        <ButtonLabel>Add a Book</ButtonLabel>
+                        <ButtonLabel>Back</ButtonLabel>
                     </StyledButton>
                 </Link>
+                <StyledButton onClick={this.handleClickNext} disabled={this.state.current_question_idx >= this.state.questions.length-1}>
+                    <ButtonLabel>Next</ButtonLabel>
+                </StyledButton>
             </Wrapper>
         );
     }
 }
 
-export default withRouter(BookList);
+export default withRouter(QuizList);

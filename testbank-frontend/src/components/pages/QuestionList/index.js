@@ -70,19 +70,24 @@ class QuestionList extends React.Component {
                     reject([]);
                 }
             }).catch(error => {
-                // console.log(error);
                 reject([]);
+                // console.log(error);
             });
         })
     }
 
 
     render() {
+        console.log(this.props);
+        const { params, match } = this.props;
         let data = [];
+        var self = this;
         this.state.questions.forEach(function(question) {
             data.push({
                 id: question.qid,
-                question: question.question
+                question: question.question,
+                solution: question.solution,
+                detail: <Link to={`${match.url}/questions/${question.qid}`}>Go</Link>
             });
         });
         const columns = [
@@ -93,9 +98,16 @@ class QuestionList extends React.Component {
             {
                 Header: 'Question',
                 accessor: 'question'
+            },
+            {
+                Header: 'Solution',
+                accessor: 'solution'
+            },
+            {
+                Header: 'Detail',
+                accessor: 'detail'
             }
         ]
-        const { params, match } = this.props;
         return (
             <Wrapper>
                 <Header>Questions</Header>

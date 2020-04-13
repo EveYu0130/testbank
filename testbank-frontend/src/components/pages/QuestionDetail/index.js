@@ -1,8 +1,6 @@
 import React from 'react';
-import Table from '../../molecules/Table';
 import { Link, withRouter } from 'react-router-dom';
 import Button from '../../atoms/Button';
-import QuestionGroup from '../../molecules/QuestionGroup';
 import styled, { keyframes, css } from 'styled-components';
 
 const Wrapper = styled.div`
@@ -82,7 +80,7 @@ const Spinner = styled.div`
   transition: border-top-color 0.5s linear, border-right-color 0.5s linear;
 `;
 
-class Quiz extends React.Component {
+class QuestionDetail extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -90,17 +88,17 @@ class Quiz extends React.Component {
             question: '',
             options: [],
             solution: '',
-            showSolution: false
         };
 
-        this.handleClickNext = this.handleClickNext.bind(this);
-        this.handleClickShowSolution = this.handleClickShowSolution.bind(this);
+        this.handleClickDelete = this.handleClickDelete.bind(this);
     }
 
     componentDidMount() {
+        const { params } = this.props;
+        const { questionId } = params;
         var self = this;
         const data = new Promise(function(resolve, reject) {
-            fetch(`http://127.0.0.1:5000/at_question?restart=1`)
+            fetch(`http://127.0.0.1:5000/question?qid=${questionId}`)
             .then(function(response) {
                 if (response.status == 200) {
                     response.json().then(function(data) {
@@ -123,74 +121,91 @@ class Quiz extends React.Component {
         })
     }
 
-    handleClickNext() {
-        console.log();
+    handleClickDelete() {
+        const { params, match } = this.props;
+        const { questionId, chapterId, bookId } = params;
         this.setState({loading: true});
         var self = this;
         const data = new Promise(function(resolve, reject) {
-            fetch(`http://127.0.0.1:5000/at_question?restart=0`)
+            fetch(`http://127.0.0.1:5000/list_all_questions_after_delete?chapter_id=${chapterId}&question_id=${questionId}`)
             .then(function(response) {
+                console.log(response);
                 if (response.status == 200) {
-                    response.json().then(function(data) {
-                        resolve(data);
-                        console.log(data);
-                        self.setState({
-                            loading: false,
-                            question: data[0],
-                            options: data.slice(1, data.length-1),
-                            solution: data[data.length-1]
-                        });
-                    });
-                } else {
-                    reject([]);
+                    self.setState({loading: false});
+                    self.props.history.push(`/books/${bookId}/chapters/${chapterId}`);
                 }
             }).catch(error => {
-                // console.log(error);
-                reject([]);
+                console.log(error);
+                // reject([]);
             });
         })
-    }
-
-    handleClickShowSolution() {
-        this.setState({showSolution: true});
     }
 
 
     render() {
         const { question, options, solution } = this.state;
-        const { params } = this.props;
-        const { url } = params;
+        const { params, match } = this.props;
+        const { questionId, bookId, chapterId } = params;
         return (
             <Wrapper>
-                <Header>Quiz</Header>
-                <div>
-                    {this.state.loading ? (
-                        <Spinner/>
-                    ) : (
-                        <QuestionGroup question={question} options={options}/>
-                    )}
-                </div>
-                <div>
-                    <StyledButton onClick={this.handleClickShowSolution}>
-                        <ButtonLabel>Show Solution</ButtonLabel>
-                    </StyledButton>
-                    {this.state.showSolution && (
+                <Header>Question Detail</Header>
+                {this.state.loading ? (
+                    <Spinner/>
+                ) : (
+                    <div>
                         <LabelWrapper>
-                            <Label>{solution}</Label>
+                            <Label>Question:</Label>
+                            <Label>{question.context}</Label>
                         </LabelWrapper>
-                    )}
-                </div>
-                <Link to={`${url}`}>
+                        <LabelWrapper>
+                            <Label>A:</Label>
+                            <Label>{options[0].context}</Label>
+                        </LabelWrapper>
+                        <LabelWrapper>
+                            <Label>B:</Label>
+                            <Label>{options[1].context}</Label>
+                        </LabelWrapper>
+                        <LabelWrapper>
+                            <Label>C:</Label>
+                            <Label>{options[2].context}</Label>
+                        </LabelWrapper>
+                        <LabelWrapper>
+                            <Label>D:</Label>
+                            <Label>{options[3].context}</Label>
+                        </LabelWrapper>
+                        <LabelWrapper>
+                            <Label>E:</Label>
+                            <Label>{options[4].context}</Label>
+                        </LabelWrapper>
+                        <LabelWrapper>
+                            <Label>Solution:</Label>
+                            <Label>{solution.context}</Label>
+                        </LabelWrapper>
+                    </div>
+                )}
+                <Link to={{
+                    pathname: `${match.url}/modify`,
+                    state: {
+                        question,
+                        options,
+                        solution
+                    }
+                }}>
+                    <StyledButton>
+                        <ButtonLabel>Modify</ButtonLabel>
+                    </StyledButton>
+                </Link>
+                <StyledButton onClick={this.handleClickDelete}>
+                    <ButtonLabel>Delete</ButtonLabel>
+                </StyledButton>
+                <Link to={`/books/${bookId}/chapters/${chapterId}`}>
                     <StyledButton>
                         <ButtonLabel>Back</ButtonLabel>
                     </StyledButton>
                 </Link>
-                <StyledButton onClick={this.handleClickNext}>
-                    <ButtonLabel>Next</ButtonLabel>
-                </StyledButton>
             </Wrapper>
         );
     }
 }
 
-export default withRouter(Quiz);
+export default withRouter(QuestionDetail);
