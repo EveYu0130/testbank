@@ -29,6 +29,11 @@ const StyledButton = styled(Button)`
   @media (max-width: 375px) {
     height: 52px;
   }
+
+  &:disabled {
+    opacity: 0.65; 
+    cursor: not-allowed;
+  }
 `;
 
 const ButtonLabel = styled.label`
@@ -102,7 +107,7 @@ class UpsertQuestion extends React.Component {
             let selectedOption = null;
             options.forEach((option, index) => {
                 if (solution.context === option.context) {
-                    selectedOption = { value: solution.context, label: `Option ${index+1}` };
+                    selectedOption = { value: index, label: `Option ${index+1}` };
                 }
             })
             this.setState({
@@ -150,13 +155,16 @@ class UpsertQuestion extends React.Component {
     
     handleSubmit(event) {
         event.preventDefault();
+        if (this.disableSubmit()) {
+            return;
+        }
         const { params } = this.props;
         const { questionId, chapterId, bookId } = params;
         const { question, selectedOption } = this.state;
         let options = [];
         let solution = {};
-        this.state.options.forEach(option => {
-            if (selectedOption.value !== option.context) {
+        this.state.options.forEach((option, index) => {
+            if (selectedOption.value !== index) {
                 options.push(option);
             } else {
                 solution = option;
@@ -201,6 +209,18 @@ class UpsertQuestion extends React.Component {
         this.setState({options});
     }
 
+    disableSubmit() {
+        const invalidQuestion = !this.state.question.context;
+        let invalidOptions = false;
+        this.state.options.forEach(option => {
+            if (!option.context) {
+                invalidOptions = true;
+            }
+        })
+        const invalidSolution = !this.state.selectedOption;
+        return invalidQuestion || invalidOptions || invalidSolution;
+    }
+
     render() {
         console.log(this.props);
         const { params } = this.props;
@@ -209,7 +229,7 @@ class UpsertQuestion extends React.Component {
         return (
             <Wrapper>
                 <Header>Add a Question</Header>
-                <form onSubmit={this.handleSubmit}>
+                <form>
                     <ContentWrapper>
                         <LabelWrapper>
                             <Label>Question:</Label>
@@ -226,7 +246,7 @@ class UpsertQuestion extends React.Component {
                         <LabelWrapper>
                             <Label>Solution:</Label>
                             <SelectWrapper>
-                                <StyledSelect options={Array.from(this.state.options).map(function(option, index) { return { value: option.context, label: `Option ${index+1}`}})} value={this.state.selectedOption} onChange={this.handleSolutionChange}/>
+                                <StyledSelect options={Array.from(this.state.options).map(function(option, index) { return { value: index, label: `Option ${index+1}`}})} value={this.state.selectedOption} onChange={this.handleSolutionChange}/>
                             </SelectWrapper>
                         </LabelWrapper>
                         {!questionId && (
@@ -234,7 +254,7 @@ class UpsertQuestion extends React.Component {
                                 <ButtonLabel>Add Option</ButtonLabel>
                             </StyledButton>
                         )}
-                        <StyledButton type="submit" value="Submit" disabled={!this.state.selectedOption}>
+                        <StyledButton type="submit" value="Submit" disabled={this.disableSubmit()} onClick={this.handleSubmit}>
                             <ButtonLabel>Submit</ButtonLabel>
                         </StyledButton>
                     </ContentWrapper>

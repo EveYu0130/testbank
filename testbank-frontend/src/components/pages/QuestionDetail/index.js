@@ -62,8 +62,6 @@ const Text = styled.label`
 
 const ContentWrapper = styled.div`
     display:block;
-    margin-left: 35%;
-    text-align: left;
 `;
 
 const spin = keyframes`
@@ -163,6 +161,10 @@ class QuestionDetail extends React.Component {
         const { question, options, solution } = this.state;
         const { params, match } = this.props;
         const { bookId, chapterId } = params;
+        let showErrors = false;
+        if (this.props.location.state && this.props.location.state.showErrors) {
+            showErrors = this.props.location.state.showErrors;
+        }
         return (
             <Wrapper>
                 <Header>Question Detail</Header>
@@ -190,22 +192,26 @@ class QuestionDetail extends React.Component {
                         </LabelWrapper>
                     </ContentWrapper>
                 )}
-                <Link to={{
-                    pathname: `${match.url}/modify`,
-                    state: {
-                        question,
-                        options,
-                        solution
-                    }
-                }}>
-                    <StyledButton>
-                        <ButtonLabel>Modify</ButtonLabel>
+                {!showErrors && (
+                    <Link to={{
+                        pathname: `${match.url}/modify`,
+                        state: {
+                            question,
+                            options,
+                            solution
+                        }
+                    }}>
+                        <StyledButton>
+                            <ButtonLabel>Modify</ButtonLabel>
+                        </StyledButton>
+                    </Link>
+                )}
+                {!showErrors && (
+                    <StyledButton onClick={this.handleClickDelete}>
+                        <ButtonLabel>Delete</ButtonLabel>
                     </StyledButton>
-                </Link>
-                <StyledButton onClick={this.handleClickDelete}>
-                    <ButtonLabel>Delete</ButtonLabel>
-                </StyledButton>
-                <Link to={`/books/${bookId}/chapters/${chapterId}`}>
+                )}
+                <Link to={{pathname: `/books/${bookId}/chapters/${chapterId}`, state: {showErrors}}}>
                     <StyledButton>
                         <ButtonLabel>Back</ButtonLabel>
                     </StyledButton>

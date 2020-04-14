@@ -28,6 +28,11 @@ const StyledButton = styled(Button)`
   @media (max-width: 375px) {
     height: 52px;
   }
+
+  &:disabled {
+    opacity: 0.65; 
+    cursor: not-allowed;
+  }
 `;
 
 const ButtonLabel = styled.label`
@@ -96,11 +101,16 @@ class AddBook extends React.Component {
         });
     }
 
+    disableSubmit() {
+        const { category, number, name } = this.state;
+        return !category || !number || !name;
+    }
+
     render() {
         return (
             <Wrapper>
                 <Header>Add a Book</Header>
-                <form onSubmit={this.handleSubmit}>
+                <form>
                     <LabelWrapper>
                         <Label>Category:</Label>
                         <input name="category" type="text" value={this.state.category} onChange={this.handleInputChange} />
@@ -113,7 +123,7 @@ class AddBook extends React.Component {
                         <Label>Name:</Label>
                         <input name="name" type="text" value={this.state.name} onChange={this.handleInputChange} />
                     </LabelWrapper>
-                    <StyledButton type="submit" value="Submit">
+                    <StyledButton type="submit" value="Submit" disabled={this.disableSubmit()} onClick={this.handleSubmit}>
                         <ButtonLabel>Submit</ButtonLabel>
                     </StyledButton>
                 </form>

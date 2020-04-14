@@ -82,19 +82,27 @@ class QuizList extends React.Component {
             loading: true,
             questions: [],
             current_question_idx: 0,
-            current_question: '',
-            current_options: [],
-            current_solution: ''
+            submitted: false,
+            showSolution: false,
+            current_answer: ''
         };
 
         this.handleClickNext = this.handleClickNext.bind(this);
+        this.handleQuestionSubmit = this.handleQuestionSubmit.bind(this);
+        this.handleQuestionToggleShowSolution = this.handleQuestionToggleShowSolution.bind(this);
+        this.handleQuestionAnswerChange = this.handleQuestionAnswerChange.bind(this);
     }
 
     componentDidMount() {
         const { params } = this.props;
         var self = this;
+        let showErrors = false;
+        if (this.props.location.state && this.props.location.state.showErrors) {
+            showErrors = this.props.location.state.showErrors;
+        }
+        const href = showErrors? `http://127.0.0.1:5000/errors?chapter_id=${params.chapterId}` : `http://127.0.0.1:5000/questions?chapter_id=${params.chapterId}`;
         return new Promise(function(resolve, reject) {
-            fetch(`http://127.0.0.1:5000/questions?chapter_id=${params.chapterId}`)
+            fetch(href)
             .then(function(response) {
                 if (response.status === 200) {
                     response.json().then(function(data) {
@@ -103,10 +111,7 @@ class QuizList extends React.Component {
                         self.setState({
                             loading: false,
                             questions: Array.from(data),
-                            current_question_idx: 0,
-                            current_question: Array.from(data)[0].question,
-                            current_options: Array.from(data)[0].options,
-                            current_solution: Array.from(data)[0].solution
+                            current_question_idx: 0
                         });
                     });
                 } else {
@@ -120,21 +125,47 @@ class QuizList extends React.Component {
     }
 
     handleClickNext() {
-        const { current_question_idx, questions } = this.state;
+        const { current_question_idx } = this.state;
         this.setState({
-            current_question_idx: current_question_idx+1,
-            current_question: questions[current_question_idx+1].question,
-            current_options: questions[current_question_idx+1].options,
-            current_solution: questions[current_question_idx+1].solution
+            current_question_idx: current_question_idx+1
+        });
+        this.setState({
+            submitted: false,
+            showSolution: false,
+            current_answer: ''
+        });
+    }
+
+    handleQuestionSubmit() {
+        console.log('hahahha');
+        this.setState({submitted: true});
+    }
+
+    handleQuestionToggleShowSolution() {
+        console.log('hhhhhhh');
+        const { showSolution } = this.state;
+        this.setState({showSolution: !showSolution});
+    }
+
+    handleQuestionAnswerChange(e) {
+        const { options } = this.state.questions[this.state.current_question_idx];
+        options.forEach(option => {
+            if (option === e.target.value) {
+                this.setState({current_answer: option});
+            }
         });
     }
 
 
     render() {
-        const { current_question, current_options, current_solution} = this.state;
         console.log(this.state);
+        const { questions, current_question_idx  } = this.state;
         const { params } = this.props;
         const { bookId, chapterId } = params;
+        let showErrors = false;
+        if (this.props.location.state && this.props.location.state.showErrors) {
+            showErrors = this.props.location.state.showErrors;
+        }
         return (
             <Wrapper>
                 <Header>Quiz</Header>
@@ -142,17 +173,36 @@ class QuizList extends React.Component {
                     {this.state.loading ? (
                         <Spinner/>
                     ) : (
-                        <QuestionGroup question={current_question} options={current_options} solution={current_solution}/>
+                        <QuestionGroup 
+                            chapterId={chapterId}
+                            questionId={questions[current_question_idx].qid} 
+                            question={questions[current_question_idx].question} 
+                            options={questions[current_question_idx].options} 
+                            solution={questions[current_question_idx].solution}
+                            submitted={this.state.submitted}
+                            showSolution={this.state.showSolution}
+                            answer={this.state.current_answer}
+                            handleQuestionSubmit={this.handleQuestionSubmit}
+                            handleQuestionToggleShowSolution={this.handleQuestionToggleShowSolution}
+                            handleQuestionAnswerChange={this.handleQuestionAnswerChange}/>
                     )}
                 </div>
-                <Link to={`/books/${bookId}/chapters/${chapterId}`}>
+                <Link to={{pathname: `/books/${bookId}/chapters/${chapterId}`, state: {showErrors}}}>
                     <StyledButton>
                         <ButtonLabel>Back</ButtonLabel>
                     </StyledButton>
                 </Link>
-                <StyledButton onClick={this.handleClickNext} disabled={this.state.current_question_idx >= this.state.questions.length-1}>
-                    <ButtonLabel>Next</ButtonLabel>
-                </StyledButton>
+                {this.state.current_question_idx < this.state.questions.length-1 ? (
+                    <StyledButton onClick={this.handleClickNext}>
+                        <ButtonLabel>Next</ButtonLabel>
+                    </StyledButton>
+                ) : (
+                    <Link to={{pathname: `/books/${bookId}/chapters/${chapterId}`, state: {showErrors}}}>
+                        <StyledButton>
+                            <ButtonLabel>End Quiz</ButtonLabel>
+                        </StyledButton>
+                    </Link>
+                )}
             </Wrapper>
         );
     }

@@ -965,31 +965,37 @@ def at_question():
 
 @app.route('/answered_question', methods=['GET', 'POST'])
 def answered_question():
-    global table, cur_qid, cur_chapter_id
-    value = request.form.getlist('check')
-    if len(value) > 1:
-        return render_template('start_quiz.html', table=table, data='Only one possible solution')
-    if value[0] != table[-1]:
+    check = request.form.get("check")
+    solution = request.form.get("solution")
+    questionId = int(request.form.get("questionId"))
+    chapterId = int(request.form.get("chapterId"))
+    print(check, solution, questionId, chapterId)
+    if check != solution:
         db = mysql.connection
         cur = db.cursor()
         sql_insert = """insert into Chapters_2_Errors (chapter_id, error_id) values (%s,%s)"""
         try:
-            cur.execute(sql_insert, (cur_chapter_id, cur_qid))
+            cur.execute(sql_insert, (chapterId, questionId))
             db.commit()
         except db.IntegrityError:
-            logging.warn("failed to insert values %s, %s", cur_chapter_id, cur_qid)
+            response = Response(status=400)
+            logging.warn("failed to insert values %s, %s", chapterId, questionId)
         cur.close()
+        response = Response(status=200)
         # return render_template('start_quiz.html', table=table, data='Wrong')
     else:
         db = mysql.connection
         cur = db.cursor()
         sql_delete = """delete from Chapters_2_Errors where (chapter_id, error_id) = (%s,%s)"""
         try:
-            cur.execute(sql_delete, (cur_chapter_id, cur_qid))
+            cur.execute(sql_delete, (chapterId, questionId))
             db.commit()
         except db.IntegrityError:
-            logging.warn("failed to delete values %s, %s", cur_chapter_id, cur_qid)
+            response = Response(status=400)
+            logging.warn("failed to delete values %s, %s", chapterId, questionId)
+        response = Response(status=200)
         cur.close()
+    return response
         # return render_template('start_quiz.html', table=table, data='Correct')
 
 @app.route('/questions', methods=['GET', 'POST'])
@@ -1000,6 +1006,50 @@ def list_all_questions2(data='', methods=['GET', 'POST']):
     print("received book id is " + str(request.args.get('chapter_id', cur_chapter_id)))
     cur = db.cursor()
     cur.execute("SELECT question_id FROM Chapters_2_Questions where chapter_id=" + str(cur_chapter_id) + ';')
+    qids = cur.fetchall()
+    qids = [x[0] for x in list(qids)]
+    table = []
+    for qid in qids:
+        cur.execute("SELECT context FROM Questions where id=" + str(qid) + ';')
+        question = cur.fetchall()[0][0]
+
+        cur.execute("SELECT option_id FROM Questions_2_Options where question_id=" + str(qid) + ';')
+        save = cur.fetchall()
+        oid_list = [x[0] for x in list(save)]
+        shuffle(oid_list)
+
+        options = []
+        for oid in oid_list:
+            cur.execute("SELECT context FROM Options where id=" + str(oid) + ';')
+            option = cur.fetchall()
+            options.append(option[0][0])
+
+        cur.execute("SELECT solution_id FROM Questions_2_Solutions where question_id=" + str(qid) + ';')
+        sid = cur.fetchall()[0][0]
+        cur.execute("SELECT context FROM Options where id=" + str(sid) + ';')
+        solution = cur.fetchall()[0][0]
+        table.append({'qid': qid, 'question': question, 'options': options, 'solution': solution})
+    shuffle(qids)
+    global cur_qid_list
+    global cur_qid_list_tmp
+    cur_qid_list = qids
+    cur_qid_list_tmp = qids
+    cur.close()
+    response = app.response_class(
+        response=json.dumps(table),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+
+@app.route('/errors', methods=['GET', 'POST'])
+def list_errors2(data=''):
+    db = mysql.connection
+    global cur_chapter_id
+    cur_chapter_id = int(request.args.get('chapter_id', cur_chapter_id))
+    print("received book id is " + str(request.args.get('chapter_id', cur_chapter_id)))
+    cur = db.cursor()
+    cur.execute("SELECT error_id FROM Chapters_2_Errors where chapter_id=" + str(cur_chapter_id) + ';')
     qids = cur.fetchall()
     qids = [x[0] for x in list(qids)]
     table = []
@@ -1075,18 +1125,17 @@ def question():
 
 @app.route('/modify', methods=['GET', 'POST'])
 def modify(data='modify successfully', methods=['GET', 'POST']):
-    print('hello')
     qid = 0
     sid = 0
     oids = []
     for key, val in request.args.items():
         print(key, val)
         if key == 'qid':
-            qid = val
+            qid = int(val)
         elif key == 'sid':
-            sid = val
+            sid = int(val)
         else:
-            oids.append(val)
+            oids.append(int(val))
     print(oids)
     question = ''
     solution = ''
@@ -1114,6 +1163,9 @@ def modify(data='modify successfully', methods=['GET', 'POST']):
         # for (oid, new_opt) in (oids, new_opts):
         cur.execute(sql_update, (new_opt, oid))
         db.commit()
+    sql_update = """update options set context = %s where id = %s"""
+    cur.execute(sql_update, (solution, sid))
+    db.commit()
     cur.close()
     response = Response(status=200)
     return response

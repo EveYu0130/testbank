@@ -117,15 +117,16 @@ class ChapterList extends React.Component {
         let data = [];
         const url = this.props.match.url;
         console.log(this.props);
-        this.state.chapters.forEach(function(chapter) {
+        this.state.chapters.forEach((chapter, index) => {
             data.push({
                 ...chapter,
+                id: index+1,
                 link: <Link to={`${url}/chapters/${chapter.id}`}>Go</Link>
             });
         });
         const columns = [
             {
-                Header: 'ID',
+                Header: '#',
                 accessor: 'id'
             },
             {

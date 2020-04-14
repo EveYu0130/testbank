@@ -85,11 +85,15 @@ const Spinner = styled.div`
 class QuestionList extends React.Component {
     constructor(props) {
         super(props);
+        let showErrors = false;
+        if (this.props.location.state && this.props.location.state.showErrors) {
+            showErrors = this.props.location.state.showErrors;
+        }
         this.state = {
             loading: true,
             questions: [],
             errors: [],
-            showErrors: false
+            showErrors
         };
 
         this.handleToggleShowErrors = this.handleToggleShowErrors.bind(this);
@@ -131,17 +135,18 @@ class QuestionList extends React.Component {
         const { params, match } = this.props;
         let data = [];
         const questions = this.state.showErrors? this.state.errors : this.state.questions;
-        questions.forEach(function(question) {
+        const self = this;
+        questions.forEach((question, index) => {
             data.push({
-                id: question.qid,
+                id: index+1,
                 question: question.question,
                 solution: question.solution,
-                detail: <Link to={`${match.url}/questions/${question.qid}`}>Go</Link>
+                detail: <Link to={{pathname: `${match.url}/questions/${question.qid}`, state: {showErrors: self.state.showErrors}}}>Go</Link>
             });
         });
         const columns = [
             {
-                Header: 'ID',
+                Header: '#',
                 accessor: 'id'
             },
             {
@@ -175,13 +180,11 @@ class QuestionList extends React.Component {
                         <Table columns={columns} data={data} />
                     )}
                 </div>
-                {!this.state.showErrors && (
-                    <Link to={`${match.url}/quiz`}>
-                        <StyledButton>
-                            <ButtonLabel>Start Quiz</ButtonLabel>
-                        </StyledButton>
-                    </Link>
-                )}
+                <Link to={{pathname: `${match.url}/quiz`, state: {showErrors: this.state.showErrors}}}>
+                    <StyledButton>
+                        <ButtonLabel>Start Quiz</ButtonLabel>
+                    </StyledButton>
+                </Link>
                 {!this.state.showErrors && (
                     <Link to={`${match.url}/questions/add`}>
                         <StyledButton>

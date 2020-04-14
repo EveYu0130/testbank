@@ -52,48 +52,46 @@ class QuestionGroup extends React.Component {
     constructor(props) {
         super(props);
     
-        this.state = {
-            answer: '',
-            showSolution: false
-        }
-    
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleToggleShowSolution = this.handleToggleShowSolution.bind(this);
     }
 
     handleChange(e) {
-        const { options } = this.props;
-        options.forEach(option => {
-            if (option === e.target.value) {
-                this.setState({answer: option});
-            }
-        });
+        this.props.handleQuestionAnswerChange(e);
     }
 
     handleSubmit(event) {
         event.preventDefault();
+        if (!this.props.answer || this.props.submitted) {
+            return;
+        }
+        const { chapterId, questionId } = this.props;
         fetch('http://127.0.0.1:5000/answered_question', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded', 
             },
-            body: "check="+this.state.answer,
+            body: "check="+this.props.answer+"&solution="+this.props.solution+"&questionId="+questionId+"&chapterId="+chapterId,
+        }).then(response => {
+            if (response.status === 200) {
+                this.props.handleQuestionSubmit();
+            }
         }).catch(error => {
             console.log(error);
         });
     }
 
     handleToggleShowSolution() {
-        const { showSolution } = this.state;
-        this.setState({showSolution: !showSolution});
+        this.props.handleQuestionToggleShowSolution();
     }
 
     render() {
         console.log(this.props);
+        console.log(this.props.answer);
         const { question, options, solution } = this.props;
         return (
-            <form onSubmit={this.handleSubmit}>
+            <form>
                     <LabelWrapper>
                         <Label>{question}</Label>
                     </LabelWrapper>
@@ -102,25 +100,30 @@ class QuestionGroup extends React.Component {
                             Array.from(options).map(option => (
                                 <LabelWrapper>
                                     <Text>
-                                        <CheckBox onChange={this.handleChange} checked={option === this.state.answer} value={option}/>
+                                        <CheckBox onChange={this.handleChange} checked={option === this.props.answer} value={option}/>
                                         {option}
                                     </Text>
                                 </LabelWrapper>
                             ))
                         }
                     </ListWrapper>
-                    <StyledButton type="submit" value="Submit" disabled={!this.state.answer}>
+                    <StyledButton type="submit" value="Submit" disabled={!this.props.answer || this.props.submitted} onClick={this.handleSubmit}>
                         <ButtonLabel>Submit</ButtonLabel>
                     </StyledButton>
+                    {this.props.answer && this.props.submitted && (
+                        <LabelWrapper>
+                            <Label>{(this.props.answer === solution? "Correct!" : "Wrong!")}</Label>
+                        </LabelWrapper>
+                    )}
                     <div>
                         <StyledButton onClick={this.handleToggleShowSolution}>
-                            {this.state.showSolution ? (
+                            {this.props.showSolution ? (
                                 <ButtonLabel>Hide Solution</ButtonLabel>
                             ) : (
                                 <ButtonLabel>Show Solution</ButtonLabel>
                             )}
                         </StyledButton>
-                        {this.state.showSolution && (
+                        {this.props.showSolution && (
                             <LabelWrapper>
                                 <Label>{solution}</Label>
                             </LabelWrapper>

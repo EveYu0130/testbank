@@ -114,13 +114,18 @@ class BookList extends React.Component {
     render() {
         let data = [];
         const url = this.props.match.url;
-        this.state.books.forEach(function(book) {
+        this.state.books.forEach((book, index) => {
             data.push({
                 ...book,
+                id: index+1,
                 link: <Link to={`${url}/${book.id}`}>Go</Link>
             });
         });
         const columns = [
+            {
+                Header: '#',
+                accessor: 'id'
+            },
             {
                 Header: 'Category',
                 accessor: 'category'
