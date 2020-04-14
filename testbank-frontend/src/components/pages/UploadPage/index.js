@@ -55,42 +55,42 @@ const Label = styled.label`
 	padding-right: 25px;
 `;
 
-class LoginPage extends React.Component {
+const FileInput = styled.input`
+    font: 13px Arial, Helvetica, sans-serif;
+    background: white;
+`;
+
+class UploadPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            username: '',
-            password: '',
-            rememberMe: false
+            file: null
         };
 
-        this.handleInputChange = this.handleInputChange.bind(this);
+        this.onChangeHandler = this.onChangeHandler.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    handleInputChange(event) {
-        const target = event.target;
-        const value = target.type === 'checkbox' ? target.checked : target.value;
-        const name = target.name;
-    
+    onChangeHandler(event) {
+        console.log(event);
         this.setState({
-          [name]: value
-        });
+            file: event.target.files[0]
+        })
     }
     
     handleSubmit(event) {
         event.preventDefault();
-        fetch('http://127.0.0.1:5000/login', {
+        const { params } = this.props;
+        const { chapterId, bookId } = params;
+        var formData = new FormData();
+        formData.append('file', this.state.file)
+        fetch('http://127.0.0.1:5000/uploaded', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded', 
-            },
-            body: "username="+this.state.username+"&password="+this.state.password,
+            enctype: "multipart/form-data",
+            body: formData,
         }).then(response => {
             if (response.status === 200) {
-                this.props.history.push('/books');
-            } else {
-                this.props.history.push('/');
+                this.props.history.push(`/books/${bookId}/chapters/${chapterId}`);
             }
             console.log(response);
         }).catch(error => {
@@ -99,33 +99,23 @@ class LoginPage extends React.Component {
     }
 
     render() {
+        const { params } = this.props;
+        const { chapterId, bookId } = params;
         return (
             <Wrapper>
-                <Header>Please Login First</Header>
-                <form onSubmit={this.handleSubmit}>
+                <Header>Upload File</Header>
+                <form>
                     <LabelWrapper>
-                        <Label>Username:</Label>
-                        <input name="username" type="text" value={this.state.username} onChange={this.handleInputChange} />
+                        <Label>File</Label>
+                        <FileInput name="file" type="file" onChange={this.onChangeHandler}/>
                     </LabelWrapper>
-                    <LabelWrapper>
-                        <Label>Password:</Label>
-                        <input name="password" type="password" value={this.state.password} onChange={this.handleInputChange} />
-                    </LabelWrapper>
-                    <LabelWrapper>
-                        <Label>Remember me</Label>
-                        <input
-                            name="rememberMe"
-                            type="checkbox"
-                            checked={this.state.rememberMe}
-                            onChange={this.handleInputChange} />
-                    </LabelWrapper>
-                    <StyledButton type="submit" value="Submit">
+                    <StyledButton type="submit" value="Submit" onClick={this.handleSubmit}>
                         <ButtonLabel>Submit</ButtonLabel>
                     </StyledButton>
                 </form>
-                <Link to="/signup">
+                <Link to={`/books/${bookId}/chapters/${chapterId}`}>
                     <StyledButton>
-                        <ButtonLabel>Create Account</ButtonLabel>
+                        <ButtonLabel>Back</ButtonLabel>
                     </StyledButton>
                 </Link>
             </Wrapper>
@@ -133,4 +123,4 @@ class LoginPage extends React.Component {
     }
 }
 
-export default withRouter(LoginPage);
+export default withRouter(UploadPage);

@@ -294,12 +294,14 @@ def upload_file():
         if 'file' not in request.files:
             flash('No file part')
             print('No file part')
-            return redirect(request.url)
+            response = Response(status=400)
+            # return redirect(request.url)
         file = request.files['file']
         if file.filename == '':
             print('No file selected for uploading')
             flash('No file selected for uploading')
-            return redirect(request.url)
+            response = Response(status=400)
+            # return redirect(request.url)
         if file and allowed_file(file.filename):
             print(file.filename)
             filename = file.filename
@@ -313,7 +315,10 @@ def upload_file():
             with open(tmp_path) as csvfile:
                 readCSV = csv.reader(csvfile, delimiter=',')
                 for row in readCSV:
-                    add_a_question(question=row[0], a=row[2], b=row[3], c=row[4], d=row[5], solution=row[1])
+                    question = row[0]
+                    solution = row[1]
+                    options = row[2:]
+                    add_a_question(question, options, solution)
                     print(row)
 
             # csv_reader = csv.reader(file(tmp_path))
@@ -323,11 +328,14 @@ def upload_file():
 
             print('File successfully uploaded')
             flash('File successfully uploaded')
-            return redirect('/upload_file')
+            response = Response(status=200)
+            # return redirect('/upload_file')
         else:
             print('Allowed file types are txt, pdf, png, jpg, jpeg, gif')
             flash('Allowed file types are txt, pdf, png, jpg, jpeg, gif')
-            return redirect(request.url)
+            response = Response(status=400)
+        return response
+            # return redirect(request.url)
 
 
 def load_csv(filename):

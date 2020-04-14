@@ -192,6 +192,13 @@ class QuestionList extends React.Component {
                         </StyledButton>
                     </Link>
                 )}
+                {!this.state.showErrors && (
+                    <Link to={`${match.url}/upload`}>
+                        <StyledButton>
+                            <ButtonLabel>Upload File</ButtonLabel>
+                        </StyledButton>
+                    </Link>
+                )}
                 <Link to={`/books/${params.bookId}`}>
                     <StyledButton>
                         <ButtonLabel>Back</ButtonLabel>

@@ -11,6 +11,7 @@ import QuestionList from './components/pages/QuestionList';
 import UpsertQuestion from './components/pages/UpsertQuestion';
 import QuizList from './components/pages/QuizList';
 import QuestionDetail from './components/pages/QuestionDetail';
+import UploadPage from './components/pages/UploadPage';
 
 function routes() {
     return (
@@ -30,6 +31,7 @@ function routes() {
                                     <Route path={`${match.url}/:chapterId(${"\\d+"})`} render={({match: {url, params} }) => (
                                         <div>
                                             <Route path={`${url}`} component={() => <QuestionList params={{chapterId: params.chapterId, bookId: bookId}} /> } exact/>
+                                            <Route path={`${url}/upload`} component={() => <UploadPage params={{chapterId: params.chapterId, bookId: bookId}} /> } exact/>
                                             <Route path={`${url}/quiz`} component={() => <QuizList params={{chapterId: params.chapterId, bookId: bookId}} /> } exact/>
                                             <Route path={`${url}/questions`} render={({match, chapterId=params.chapterId }) => (
                                                 <div>
