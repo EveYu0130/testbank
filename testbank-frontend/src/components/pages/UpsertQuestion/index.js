@@ -123,17 +123,12 @@ class UpsertQuestion extends React.Component {
     handleOptionsChange(event) {
         const target = event.target;
         const value = target.value;
-        const name = target.name;
-
+        const id = target.id;
         let options = this.state.options;
-        this.state.options.forEach((option, index) => {
-            if (name === `option${index+1}`) {
-                options[index] = {
-                    ...options[index],
-                    context: value
-                };
-            }
-        });
+        options[id] = {
+            ...options[id],
+            context: value
+        };
         this.setState({options});
     }
 
@@ -150,7 +145,6 @@ class UpsertQuestion extends React.Component {
 
     handleSolutionChange(selectedOption) {
         this.setState({selectedOption});
-        console.log(this.state);
     }
     
     handleSubmit(event) {
@@ -203,8 +197,12 @@ class UpsertQuestion extends React.Component {
         });
     }
 
-    handleAddOption() {
-        let { options } = this.state;
+    handleAddOption(event) {
+        event.preventDefault();
+        let options = [];
+        this.state.options.forEach(option => {
+            options.push(option);
+        })
         options.push({context: ''});
         this.setState({options});
     }
@@ -222,7 +220,6 @@ class UpsertQuestion extends React.Component {
     }
 
     render() {
-        console.log(this.props);
         const { params } = this.props;
         const { questionId, bookId, chapterId } = params;
         console.log(this.state.options);
@@ -239,7 +236,7 @@ class UpsertQuestion extends React.Component {
                             Array.from(this.state.options).map((option, index) => (
                                 <LabelWrapper>
                                     <Label>Option {index+1}:</Label>
-                                    <input name={`option${index+1}`} type="text" value={option.context} onChange={this.handleOptionsChange} />
+                                    <input id={index} name={`option${index+1}`} type="text" value={option.context} onChange={this.handleOptionsChange} />
                                 </LabelWrapper>
                             ))
                         }
