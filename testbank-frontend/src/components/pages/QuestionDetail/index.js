@@ -54,6 +54,18 @@ const Label = styled.label`
 	padding-right: 25px;
 `;
 
+const Text = styled.label`
+    font: 12px Arial, Helvetica, sans-serif;
+	padding-top: 8px;
+	padding-right: 25px;
+`;
+
+const ContentWrapper = styled.div`
+    display:block;
+    margin-left: 35%;
+    text-align: left;
+`;
+
 const spin = keyframes`
   0% {
     transform: rotate(0deg);
@@ -156,26 +168,26 @@ class QuestionDetail extends React.Component {
                 {this.state.loading ? (
                     <Spinner/>
                 ) : (
-                    <div>
+                    <ContentWrapper>
                         <LabelWrapper>
                             <Label>Question:</Label>
-                            <Label>{question.context}</Label>
+                            <Text>{question.context}</Text>
                         </LabelWrapper>
                         <ListWrapper>
                             {
                                 Array.from(options).map((option, index) => (
                                     <LabelWrapper>
                                         <Label>Option {index+1}:</Label>
-                                        <Label>{option.context}</Label>
+                                        <Text>{option.context}</Text>
                                     </LabelWrapper>
                                 ))
                             }
                         </ListWrapper>
                         <LabelWrapper>
                             <Label>Solution:</Label>
-                            <Label>{solution.context}</Label>
+                            <Text>{solution.context}</Text>
                         </LabelWrapper>
-                    </div>
+                    </ContentWrapper>
                 )}
                 <Link to={{
                     pathname: `${match.url}/modify`,

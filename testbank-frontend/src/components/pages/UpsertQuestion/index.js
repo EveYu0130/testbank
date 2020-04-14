@@ -61,11 +61,19 @@ const Label = styled.label`
 `;
 
 const SelectWrapper = styled.div`
-    display:block;
-    width: 30%;
+    width: 50%;
     text-align: center;
     justify-content: center;
-    margin: 0 35%;
+`;
+
+const StyledSelect = styled(Select)`
+    font: 13px Arial, Helvetica, sans-serif;
+`;
+
+const ContentWrapper = styled.div`
+    display:block;
+    margin-left: 29%;
+    text-align: left;
 `;
 
 class UpsertQuestion extends React.Component {
@@ -205,11 +213,11 @@ class UpsertQuestion extends React.Component {
             <Wrapper>
                 <Header>Add a Question</Header>
                 <form onSubmit={this.handleSubmit}>
-                    <LabelWrapper>
-                        <Label>Question:</Label>
-                        <input name="question" type="text" value={this.state.question.context} onChange={this.handleQuestionChange} />
-                    </LabelWrapper>
-                    <ListWrapper>
+                    <ContentWrapper>
+                        <LabelWrapper>
+                            <Label>Question:</Label>
+                            <input name="question" type="text" value={this.state.question.context} onChange={this.handleQuestionChange} />
+                        </LabelWrapper>
                         {
                             Array.from(this.state.options).map((option, index) => (
                                 <LabelWrapper>
@@ -218,21 +226,21 @@ class UpsertQuestion extends React.Component {
                                 </LabelWrapper>
                             ))
                         }
-                    </ListWrapper>
-                    {!questionId && (
-                        <StyledButton onClick={this.handleAddOption}>
-                            <ButtonLabel>Add New Option</ButtonLabel>
+                        <LabelWrapper>
+                            <Label>Solution:</Label>
+                            <SelectWrapper>
+                                <StyledSelect options={Array.from(this.state.options).map(function(option, index) { return { value: option.context, label: `Option ${index+1}`}})} value={this.state.selectedOption} onChange={this.handleSolutionChange}/>
+                            </SelectWrapper>
+                        </LabelWrapper>
+                        {!questionId && (
+                            <StyledButton onClick={this.handleAddOption}>
+                                <ButtonLabel>Add Option</ButtonLabel>
+                            </StyledButton>
+                        )}
+                        <StyledButton type="submit" value="Submit" disabled={!this.state.selectedOption}>
+                            <ButtonLabel>Submit</ButtonLabel>
                         </StyledButton>
-                    )}
-                    <LabelWrapper>
-                        <Label>Solution:</Label>
-                        <SelectWrapper>
-                        <Select options={Array.from(this.state.options).map(function(option, index) { return { value: option.context, label: `Option ${index+1}`}})} value={this.state.selectedOption} onChange={this.handleSolutionChange}/>
-                        </SelectWrapper>
-                    </LabelWrapper>
-                    <StyledButton type="submit" value="Submit" disabled={!this.state.selectedOption}>
-                        <ButtonLabel>Submit</ButtonLabel>
-                    </StyledButton>
+                    </ContentWrapper>
                 </form>
                 <Link to={`/books/${bookId}/chapters/${chapterId}`}>
                     <StyledButton>

@@ -2,23 +2,6 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const Button = styled.button`
-    // display: flex;
-    // align-items: center;
-    // font-size: 14px;
-    // background-color: red;
-    // border-radius: 8px;
-    // border: none;
-    // color: #333;
-    // padding: 10px;
-    // cursor: pointer;
-
-    // &:hover {
-    //     background-color: lighten(
-    //         red,
-    //         15%
-    //     );
-    // }
-
     box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;

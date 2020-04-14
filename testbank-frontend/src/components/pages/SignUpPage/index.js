@@ -94,9 +94,11 @@ class SignUpPage extends React.Component {
             if (response.status == 200) {
                 alert('Account created');
                 this.props.history.push('/');
+            } else {
+                alert('Fail to create account');
             }
-            console.log(response);
         }).catch(error => {
+            alert('Fail to create account');
             console.log(error);
         });
     }

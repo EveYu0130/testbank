@@ -53,6 +53,18 @@ const ButtonLabel = styled.label`
   margin-left: 5px;
 `;
 
+const Text = styled.label`
+    font: 12px Arial, Helvetica, sans-serif;
+	padding-top: 8px;
+	padding-right: 25px;
+`;
+
+const ContentWrapper = styled.div`
+    display:block;
+    margin-left: 35%;
+    text-align: left;
+`;
+
 
 class QuestionGroup extends React.Component {
     constructor(props) {
@@ -107,10 +119,10 @@ class QuestionGroup extends React.Component {
                         {
                             Array.from(options).map(option => (
                                 <LabelWrapper>
-                                    <Label>
+                                    <Text>
                                         <CheckBox onChange={this.handleChange} checked={option === this.state.answer} value={option}/>
                                         {option}
-                                    </Label>
+                                    </Text>
                                 </LabelWrapper>
                             ))
                         }
