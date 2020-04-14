@@ -80,8 +80,25 @@ class SignUpPage extends React.Component {
     }
     
     handleSubmit(event) {
-        alert('Account created');
         event.preventDefault();
+        // const form = new FormData();
+        // form.append('username', this.state.username);
+        // form.append('password', this.state.password);
+        fetch('http://127.0.0.1:5000/creating_account', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded', 
+            },
+            body: "username="+this.state.username+"&password="+this.state.password+"&email="+this.state.email,
+        }).then(response => {
+            if (response.status == 200) {
+                alert('Account created');
+                this.props.history.push('/');
+            }
+            console.log(response);
+        }).catch(error => {
+            console.log(error);
+        });
     }
 
     render() {

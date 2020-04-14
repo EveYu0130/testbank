@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../../atoms/Button';
+import Select from 'react-select';
 
 
 const Wrapper = styled.div`
@@ -43,6 +44,9 @@ const Header = styled.h1`
     margin: -16px -16px 16px -16px;
     // width: 20%;
 `;
+const ListWrapper = styled.ul`
+    list-style: none;
+`;
 
 const LabelWrapper = styled.div`
     display:block;
@@ -56,20 +60,29 @@ const Label = styled.label`
 	padding-right: 25px;
 `;
 
+const SelectWrapper = styled.div`
+    display:block;
+    width: 30%;
+    text-align: center;
+    justify-content: center;
+    margin: 0 35%;
+`;
+
 class UpsertQuestion extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             loading: true,
             question: {context: ''},
-            options: Array(5).fill({context: ''}),
-            solution: {context: ''}
+            options: [{context: ''}],
+            selectedOption: null
         };
 
         this.handleOptionsChange = this.handleOptionsChange.bind(this);
         this.handleQuestionChange = this.handleQuestionChange.bind(this);
         this.handleSolutionChange = this.handleSolutionChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleAddOption = this.handleAddOption.bind(this);
     }
 
     componentDidMount() {
@@ -80,11 +93,18 @@ class UpsertQuestion extends React.Component {
             this.setState({loading: false});
         } else {
             const { question, options, solution } = this.props.location.state;
+            console.log(this.props.location.state);
+            let selectedOption = null;
+            options.forEach((option, index) => {
+                if (solution.context === option.context) {
+                    selectedOption = { value: solution.context, label: `Option ${index+1}` };
+                }
+            })
             this.setState({
                 loading: false,
                 question,
                 options,
-                solution
+                selectedOption
             })
 
         }
@@ -96,34 +116,14 @@ class UpsertQuestion extends React.Component {
         const name = target.name;
 
         let options = this.state.options;
-        if (name === 'option1') {
-            options[0] = {
-                ...options[0],
-                context: value
-            };
-        } else if (name === 'option2') {
-            options[1] = {
-                ...options[1],
-                context: value
-            };
-        } else if (name === 'option3') {
-            options[2] = {
-                ...options[2],
-                context: value
-            };
-        } else if (name === 'option4') {
-            options[3] = {
-                ...options[3],
-                context: value
-            };
-        } else if (name === 'option5') {
-            options[4] = {
-                ...options[4],
-                context: value
-            };
-        }
-        console.log(options);
-    
+        this.state.options.forEach((option, index) => {
+            if (name === `option${index+1}`) {
+                options[index] = {
+                    ...options[index],
+                    context: value
+                };
+            }
+        });
         this.setState({options});
     }
 
@@ -138,47 +138,46 @@ class UpsertQuestion extends React.Component {
         this.setState({question});
     }
 
-    handleSolutionChange(event) {
+    handleSolutionChange(selectedOption) {
+        this.setState({selectedOption});
         console.log(this.state);
-        const target = event.target;
-        const value = target.value;
-        let solution = {
-            ...this.state.solution,
-            context: value
-        };
-
-        this.state.options.forEach(option => {
-            if (option.id && option.context === value) {
-                solution = {
-                    ...solution,
-                    id: option.id
-                }
-            }
-        })
-        this.setState({solution});
     }
     
     handleSubmit(event) {
         event.preventDefault();
         const { params } = this.props;
         const { questionId, chapterId, bookId } = params;
-        const { question, solution } = this.state;
+        const { question, selectedOption } = this.state;
         let options = [];
+        let solution = {};
         this.state.options.forEach(option => {
-            if (solution.context != option.context) {
+            if (selectedOption.value != option.context) {
                 options.push(option);
+            } else {
+                solution = option;
             }
         })
         let href = 'http://127.0.0.1:5000/adding_question';
         if (questionId) {
-            href = `http://127.0.0.1:5000/modify?qid=${question.id}&aid=${options[0].id}&bid=${options[1].id}&cid=${options[2].id}&did=${options[3].id}&sid=${solution.id}`;
+            let hrefParams = `qid=${question.id}`;
+            options.forEach((option, index) => {
+                hrefParams = hrefParams + `&oid${index+1}=${option.id}`;
+            })
+            hrefParams = hrefParams + `&sid=${solution.id}`;
+            href = `http://127.0.0.1:5000/modify?`+ hrefParams;
         }
+        let bodyParams = `question=${question.context}`;
+        options.forEach((option, index) => {
+            bodyParams = bodyParams + `&option${index+1}=${option.context}`;
+        })
+        bodyParams = bodyParams + `&solution=${solution.context}`;
+        console.log(bodyParams);
         fetch(href, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded', 
             },
-            body: "question="+question.context+"&a="+options[0].context+"&b="+options[1].context+"&c="+options[2].context+"&d="+options[3].context+"&solution="+solution.context,
+            body: bodyParams,
         }).then(response => {
             if (questionId) {
                 this.props.history.push(`/books/${bookId}/chapters/${chapterId}/questions/${questionId}`);
@@ -191,10 +190,17 @@ class UpsertQuestion extends React.Component {
         });
     }
 
+    handleAddOption() {
+        let { options } = this.state;
+        options.push({context: ''});
+        this.setState({options});
+    }
+
     render() {
         console.log(this.props);
         const { params } = this.props;
-        const { bookId, chapterId } = params;
+        const { questionId, bookId, chapterId } = params;
+        console.log(this.state.options);
         return (
             <Wrapper>
                 <Header>Add a Question</Header>
@@ -203,31 +209,28 @@ class UpsertQuestion extends React.Component {
                         <Label>Question:</Label>
                         <input name="question" type="text" value={this.state.question.context} onChange={this.handleQuestionChange} />
                     </LabelWrapper>
-                    <LabelWrapper>
-                        <Label>Option 1:</Label>
-                        <input name="option1" type="text" value={this.state.options[0].context} onChange={this.handleOptionsChange} />
-                    </LabelWrapper>
-                    <LabelWrapper>
-                        <Label>Option 2:</Label>
-                        <input name="option2" type="text" value={this.state.options[1].context} onChange={this.handleOptionsChange} />
-                    </LabelWrapper>
-                    <LabelWrapper>
-                        <Label>Option 3:</Label>
-                        <input name="option3" type="text" value={this.state.options[2].context} onChange={this.handleOptionsChange} />
-                    </LabelWrapper>
-                    <LabelWrapper>
-                        <Label>Option 4:</Label>
-                        <input name="option4" type="text" value={this.state.options[3].context} onChange={this.handleOptionsChange} />
-                    </LabelWrapper>
-                    <LabelWrapper>
-                        <Label>Option 5:</Label>
-                        <input name="option5" type="text" value={this.state.options[4].context} onChange={this.handleOptionsChange} />
-                    </LabelWrapper>
+                    <ListWrapper>
+                        {
+                            Array.from(this.state.options).map((option, index) => (
+                                <LabelWrapper>
+                                    <Label>Option {index+1}:</Label>
+                                    <input name={`option${index+1}`} type="text" value={option.context} onChange={this.handleOptionsChange} />
+                                </LabelWrapper>
+                            ))
+                        }
+                    </ListWrapper>
+                    {!questionId && (
+                        <StyledButton onClick={this.handleAddOption}>
+                            <ButtonLabel>Add New Option</ButtonLabel>
+                        </StyledButton>
+                    )}
                     <LabelWrapper>
                         <Label>Solution:</Label>
-                        <input name="solution" type="text" value={this.state.solution.context} onChange={this.handleSolutionChange} />
+                        <SelectWrapper>
+                        <Select options={Array.from(this.state.options).map(function(option, index) { return { value: option.context, label: `Option ${index+1}`}})} value={this.state.selectedOption} onChange={this.handleSolutionChange}/>
+                        </SelectWrapper>
                     </LabelWrapper>
-                    <StyledButton type="submit" value="Submit">
+                    <StyledButton type="submit" value="Submit" disabled={!this.state.selectedOption}>
                         <ButtonLabel>Submit</ButtonLabel>
                     </StyledButton>
                 </form>

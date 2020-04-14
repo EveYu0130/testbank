@@ -80,6 +80,10 @@ const Spinner = styled.div`
   transition: border-top-color 0.5s linear, border-right-color 0.5s linear;
 `;
 
+const ListWrapper = styled.ul`
+    list-style: none;
+`;
+
 class QuestionDetail extends React.Component {
     constructor(props) {
         super(props);
@@ -157,26 +161,16 @@ class QuestionDetail extends React.Component {
                             <Label>Question:</Label>
                             <Label>{question.context}</Label>
                         </LabelWrapper>
-                        <LabelWrapper>
-                            <Label>A:</Label>
-                            <Label>{options[0].context}</Label>
-                        </LabelWrapper>
-                        <LabelWrapper>
-                            <Label>B:</Label>
-                            <Label>{options[1].context}</Label>
-                        </LabelWrapper>
-                        <LabelWrapper>
-                            <Label>C:</Label>
-                            <Label>{options[2].context}</Label>
-                        </LabelWrapper>
-                        <LabelWrapper>
-                            <Label>D:</Label>
-                            <Label>{options[3].context}</Label>
-                        </LabelWrapper>
-                        <LabelWrapper>
-                            <Label>E:</Label>
-                            <Label>{options[4].context}</Label>
-                        </LabelWrapper>
+                        <ListWrapper>
+                            {
+                                Array.from(options).map((option, index) => (
+                                    <LabelWrapper>
+                                        <Label>Option {index+1}:</Label>
+                                        <Label>{option.context}</Label>
+                                    </LabelWrapper>
+                                ))
+                            }
+                        </ListWrapper>
                         <LabelWrapper>
                             <Label>Solution:</Label>
                             <Label>{solution.context}</Label>

@@ -213,7 +213,7 @@ def creating_account():
     c = request.form.get("email")
     if a == '' or b == '' or c == '':
         print('create_account_fail')
-        return redirect(url_for('create_account_fail'))
+        response = Response(status=400)
     db = mysql.connection
     cur = db.cursor()
     sql_insert = """insert into Users (username, pw, email) values (%s,%s,%s)"""
@@ -222,11 +222,14 @@ def creating_account():
         db.commit()
     except db.IntegrityError:
         logging.warn("failed to insert values %s, %s", "%s", a, b, c)
-        return create_account_fail(err='username and email should be unique')
+        response = Response(status=400)
+        # return create_account_fail(err='username and email should be unique')
     else:
-        return welcome(data='Create acoount successfully. Please login now.')
+        response = Response(status=200)
+        # return welcome(data='Create acoount successfully. Please login now.')
     finally:
         cur.close()
+        return response
 
 
 @app.route('/list_books', methods=['GET', 'POST'])
@@ -418,7 +421,7 @@ def adding_book(data=''):
     return list_books(data='Successfully Adding a Book!')
 
 
-def add_a_question(question, a, b, c, d, solution):
+def add_a_question(question, options, solution):
     global cur_chapter_id
     db = mysql.connection
     cur = db.cursor()
@@ -432,49 +435,19 @@ def add_a_question(question, a, b, c, d, solution):
     print(question_id)
     cur.close()
 
-    cur = db.cursor()
-    try:
-        cur.execute("""insert into Options (context) values (%s)""", (a,))
-        db.commit()
-    except db.IntegrityError:
-        logging.warn("failed to insert values %s", a)
-    cur.execute("SELECT id FROM Options ORDER BY id DESC LIMIT 1")
-    a_id = cur.fetchall()[0][0]
-    print(a_id)
-    cur.close()
-
-    cur = db.cursor()
-    try:
-        cur.execute("""insert into Options (context) values (%s)""", (b,))
-        db.commit()
-    except db.IntegrityError:
-        logging.warn("failed to insert values %s", b)
-    cur.execute("SELECT id FROM Options ORDER BY id DESC LIMIT 1")
-    b_id = cur.fetchall()[0][0]
-    print(b_id)
-    cur.close()
-
-    cur = db.cursor()
-    try:
-        cur.execute("""insert into Options (context) values (%s)""", (c,))
-        db.commit()
-    except db.IntegrityError:
-        logging.warn("failed to insert values %s", c)
-    cur.execute("SELECT id FROM Options ORDER BY id DESC LIMIT 1")
-    c_id = cur.fetchall()[0][0]
-    print(c_id)
-    cur.close()
-
-    cur = db.cursor()
-    try:
-        cur.execute("""insert into Options (context) values (%s)""", (d,))
-        db.commit()
-    except db.IntegrityError:
-        logging.warn("failed to insert values %s", d)
-    cur.execute("SELECT id FROM Options ORDER BY id DESC LIMIT 1")
-    d_id = cur.fetchall()[0][0]
-    print(d_id)
-    cur.close()
+    option_ids = []
+    for option in options:
+        cur = db.cursor()
+        try:
+            cur.execute("""insert into Options (context) values (%s)""", (option,))
+            db.commit()
+        except db.IntegrityError:
+            logging.warn("failed to insert values %s", option)
+        cur.execute("SELECT id FROM Options ORDER BY id DESC LIMIT 1")
+        option_id = cur.fetchall()[0][0]
+        print(option_id)
+        option_ids.append(option_id)
+        cur.close()
 
     cur = db.cursor()
     try:
@@ -496,41 +469,15 @@ def add_a_question(question, a, b, c, d, solution):
         logging.warn("failed to insert values %s, %s", cur_chapter_id, question_id)
     cur.close()
 
-    cur = db.cursor()
-    sql_insert = """insert into Questions_2_Options (question_id, option_id) values (%s,%s)"""
-    try:
-        cur.execute(sql_insert, (question_id, a_id))
-        db.commit()
-    except db.IntegrityError:
-        logging.warn("failed to insert values %s, %s", question_id, a_id)
-    cur.close()
-
-    cur = db.cursor()
-    sql_insert = """insert into Questions_2_Options (question_id, option_id) values (%s,%s)"""
-    try:
-        cur.execute(sql_insert, (question_id, b_id))
-        db.commit()
-    except db.IntegrityError:
-        logging.warn("failed to insert values %s, %s", question_id, b_id)
-    cur.close()
-
-    cur = db.cursor()
-    sql_insert = """insert into Questions_2_Options (question_id, option_id) values (%s,%s)"""
-    try:
-        cur.execute(sql_insert, (question_id, c_id))
-        db.commit()
-    except db.IntegrityError:
-        logging.warn("failed to insert values %s, %s", question_id, c_id)
-    cur.close()
-
-    cur = db.cursor()
-    sql_insert = """insert into Questions_2_Options (question_id, option_id) values (%s,%s)"""
-    try:
-        cur.execute(sql_insert, (question_id, d_id))
-        db.commit()
-    except db.IntegrityError:
-        logging.warn("failed to insert values %s, %s", question_id, d_id)
-    cur.close()
+    for oid in option_ids:
+        cur = db.cursor()
+        sql_insert = """insert into Questions_2_Options (question_id, option_id) values (%s,%s)"""
+        try:
+            cur.execute(sql_insert, (question_id, oid))
+            db.commit()
+        except db.IntegrityError:
+            logging.warn("failed to insert values %s, %s", question_id, oid)
+        cur.close()
 
     cur = db.cursor()
     sql_insert = """insert into Questions_2_Options (question_id, option_id) values (%s,%s)"""
@@ -554,14 +501,19 @@ def add_a_question(question, a, b, c, d, solution):
 
 @app.route('/adding_question', methods=['GET', 'POST'])
 def adding_question():
-    question = request.form.get("question")
-    a = request.form.get("a")
-    b = request.form.get("b")
-    c = request.form.get("c")
-    d = request.form.get("d")
-    solution = request.form.get("solution")
+    question = ''
+    solution = ''
+    options = []
+    for key, val in request.form.items():
+        print(key, val)
+        if key == 'question':
+            question = val
+        elif key == 'solution':
+            solution = val
+        else:
+            options.append(val)
 
-    add_a_question(question, a, b, c, d, solution)
+    add_a_question(question, options, solution)
 
     # db = mysql.connection
     # cur = db.cursor()
@@ -1123,21 +1075,30 @@ def question():
 
 @app.route('/modify', methods=['GET', 'POST'])
 def modify(data='modify successfully', methods=['GET', 'POST']):
-    qid = int(request.args.get('qid', 0))
-    aid = int(request.args.get('aid', 0))
-    bid = int(request.args.get('bid', 0))
-    cid = int(request.args.get('cid', 0))
-    did = int(request.args.get('did', 0))
-    sid = int(request.args.get('sid', 0))
-    oids = [aid, bid, cid, did]
+    print('hello')
+    qid = 0
+    sid = 0
+    oids = []
+    for key, val in request.args.items():
+        print(key, val)
+        if key == 'qid':
+            qid = val
+        elif key == 'sid':
+            sid = val
+        else:
+            oids.append(val)
     print(oids)
-    question = request.form.get("question")
-    a = request.form.get("a")
-    b = request.form.get("b")
-    c = request.form.get("c")
-    d = request.form.get("d")
-    solution = request.form.get("solution")
-    new_opts = [a, b, c, d]
+    question = ''
+    solution = ''
+    new_opts = []
+    for key, val in request.form.items():
+        print(key, val)
+        if key == 'question':
+            question = val
+        elif key == 'solution':
+            solution = val
+        else:
+            new_opts.append(val)
     db = mysql.connection
     cur = db.cursor()
     sql_update = """update questions set context = %s where id = %s"""
@@ -1147,7 +1108,7 @@ def modify(data='modify successfully', methods=['GET', 'POST']):
     cur.execute(sql_update, (sid, qid))
     db.commit()
     sql_update = """update options set context = %s where id = %s"""
-    for i in range(4):
+    for i in range(len(oids)):
         oid = oids[i]
         new_opt = new_opts[i]
         # for (oid, new_opt) in (oids, new_opts):
