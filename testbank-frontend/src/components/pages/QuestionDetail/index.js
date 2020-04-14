@@ -90,6 +90,7 @@ const Spinner = styled.div`
   border-right-color: #43D1AF;
   animation: ${spinAnimation};
   transition: border-top-color 0.5s linear, border-right-color 0.5s linear;
+  margin-left: 48%;
 `;
 
 const ListWrapper = styled.ul`
@@ -113,10 +114,10 @@ class QuestionDetail extends React.Component {
         const { params } = this.props;
         const { questionId } = params;
         var self = this;
-        const data = new Promise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             fetch(`http://127.0.0.1:5000/question?qid=${questionId}`)
             .then(function(response) {
-                if (response.status == 200) {
+                if (response.status === 200) {
                     response.json().then(function(data) {
                         resolve(data);
                         console.log(data);
@@ -138,15 +139,15 @@ class QuestionDetail extends React.Component {
     }
 
     handleClickDelete() {
-        const { params, match } = this.props;
+        const { params } = this.props;
         const { questionId, chapterId, bookId } = params;
         this.setState({loading: true});
         var self = this;
-        const data = new Promise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             fetch(`http://127.0.0.1:5000/list_all_questions_after_delete?chapter_id=${chapterId}&question_id=${questionId}`)
             .then(function(response) {
                 console.log(response);
-                if (response.status == 200) {
+                if (response.status === 200) {
                     self.setState({loading: false});
                     self.props.history.push(`/books/${bookId}/chapters/${chapterId}`);
                 }
@@ -161,7 +162,7 @@ class QuestionDetail extends React.Component {
     render() {
         const { question, options, solution } = this.state;
         const { params, match } = this.props;
-        const { questionId, bookId, chapterId } = params;
+        const { bookId, chapterId } = params;
         return (
             <Wrapper>
                 <Header>Question Detail</Header>

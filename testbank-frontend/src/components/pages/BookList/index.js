@@ -75,10 +75,7 @@ const Spinner = styled.div`
   border-right-color: #43D1AF;
   animation: ${spinAnimation};
   transition: border-top-color 0.5s linear, border-right-color 0.5s linear;
-`;
-
-const TableWrapper = styled.div`
-text-align: center;
+  margin-left: 48%;
 `;
 
 class BookList extends React.Component {
@@ -92,10 +89,10 @@ class BookList extends React.Component {
 
     componentDidMount() {
         var self = this;
-        const data = new Promise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             fetch('http://127.0.0.1:5000/list_books')
             .then(function(response) {
-                if (response.status == 200) {
+                if (response.status === 200) {
                     response.json().then(function(data) {
                         resolve(data);
                         self.setState({

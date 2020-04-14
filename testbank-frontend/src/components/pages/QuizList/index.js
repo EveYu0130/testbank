@@ -1,5 +1,4 @@
 import React from 'react';
-import Table from '../../molecules/Table';
 import { Link, withRouter } from 'react-router-dom';
 import Button from '../../atoms/Button';
 import QuestionGroup from '../../molecules/QuestionGroup';
@@ -49,18 +48,6 @@ const ButtonLabel = styled.label`
   margin-left: 5px;
 `;
 
-const LabelWrapper = styled.div`
-    display:block;
-    margin-bottom: 20px;
-`;
-
-const Label = styled.label`
-    font: 13px Arial, Helvetica, sans-serif;
-	font-weight: bold;
-	padding-top: 8px;
-	padding-right: 25px;
-`;
-
 const spin = keyframes`
   0% {
     transform: rotate(0deg);
@@ -85,6 +72,7 @@ const Spinner = styled.div`
   border-right-color: #43D1AF;
   animation: ${spinAnimation};
   transition: border-top-color 0.5s linear, border-right-color 0.5s linear;
+  margin-left: 48%;
 `;
 
 class QuizList extends React.Component {
@@ -105,10 +93,10 @@ class QuizList extends React.Component {
     componentDidMount() {
         const { params } = this.props;
         var self = this;
-        const data = new Promise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             fetch(`http://127.0.0.1:5000/questions?chapter_id=${params.chapterId}`)
             .then(function(response) {
-                if (response.status == 200) {
+                if (response.status === 200) {
                     response.json().then(function(data) {
                         resolve(data);
                         console.log(data);

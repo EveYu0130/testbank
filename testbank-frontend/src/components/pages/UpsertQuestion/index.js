@@ -44,9 +44,6 @@ const Header = styled.h1`
     margin: -16px -16px 16px -16px;
     // width: 20%;
 `;
-const ListWrapper = styled.ul`
-    list-style: none;
-`;
 
 const LabelWrapper = styled.div`
     display:block;
@@ -159,7 +156,7 @@ class UpsertQuestion extends React.Component {
         let options = [];
         let solution = {};
         this.state.options.forEach(option => {
-            if (selectedOption.value != option.context) {
+            if (selectedOption.value !== option.context) {
                 options.push(option);
             } else {
                 solution = option;

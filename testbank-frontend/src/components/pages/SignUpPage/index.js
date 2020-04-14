@@ -91,7 +91,7 @@ class SignUpPage extends React.Component {
             },
             body: "username="+this.state.username+"&password="+this.state.password+"&email="+this.state.email,
         }).then(response => {
-            if (response.status == 200) {
+            if (response.status === 200) {
                 alert('Account created');
                 this.props.history.push('/');
             } else {

@@ -3,17 +3,6 @@ import styled from 'styled-components';
 import CheckBox from '../../atoms/CheckBox';
 import Button from '../../atoms/Button';
 
-const Wrapper = styled.div`
-    box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    border-radius: 8px;
-    background: #f4f7f8;
-    text-align: center;
-    padding: 5% 0;
-    height: 100%;
-`;
-
 const LabelWrapper = styled.div`
     display:block;
     margin-bottom: 20px;
@@ -58,13 +47,6 @@ const Text = styled.label`
 	padding-top: 8px;
 	padding-right: 25px;
 `;
-
-const ContentWrapper = styled.div`
-    display:block;
-    margin-left: 35%;
-    text-align: left;
-`;
-
 
 class QuestionGroup extends React.Component {
     constructor(props) {

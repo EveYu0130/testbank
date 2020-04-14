@@ -1,8 +1,8 @@
 import React from 'react';
 import Table from '../../molecules/Table';
 import { Link, withRouter } from 'react-router-dom';
-import styled from 'styled-components';
 import Button from '../../atoms/Button';
+import styled, { keyframes, css } from 'styled-components';
 
 const Wrapper = styled.div`
     box-sizing: border-box;
@@ -55,6 +55,33 @@ const Label = styled.label`
 	padding-right: 25px;
 `;
 
+const spin = keyframes`
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+`;
+
+const spinAnimation = css`
+  ${spin} 1s infinite linear
+`;
+
+const Spinner = styled.div`
+  pointer-events: all;
+  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  border: 5px solid
+    rgba(255, 255, 255, 0.2);
+  border-top-color: #43D1AF;
+  border-right-color: #43D1AF;
+  animation: ${spinAnimation};
+  transition: border-top-color 0.5s linear, border-right-color 0.5s linear;
+  margin-left: 48%;
+`;
+
 class QuestionList extends React.Component {
     constructor(props) {
         super(props);
@@ -75,7 +102,7 @@ class QuestionList extends React.Component {
             fetch(`http://127.0.0.1:5000/list_all_questions?chapter_id=${params.chapterId}`),
             fetch(`http://127.0.0.1:5000/list_errors?chapter_id=${params.chapterId}`)
         ]).then(([questionsResponse, errorsResponse]) => {
-            if (questionsResponse.status == 200 && errorsResponse.status == 200) {
+            if (questionsResponse.status === 200 && errorsResponse.status === 200) {
                 questionsResponse.json().then(function(data) {
                     self.setState({
                         questions: Array.from(data)
@@ -94,8 +121,7 @@ class QuestionList extends React.Component {
     }
 
     handleToggleShowErrors() {
-        const { showErrors, errors } = this.state;
-        const { params } = this.props;
+        const { showErrors } = this.state;
         this.setState({showErrors: !showErrors});
     }
 
@@ -104,7 +130,6 @@ class QuestionList extends React.Component {
         console.log(this.props);
         const { params, match } = this.props;
         let data = [];
-        var self = this;
         const questions = this.state.showErrors? this.state.errors : this.state.questions;
         questions.forEach(function(question) {
             data.push({
@@ -143,7 +168,13 @@ class QuestionList extends React.Component {
                         checked={this.state.showErrors}
                         onChange={this.handleToggleShowErrors} />
                 </LabelWrapper>
-                <Table columns={columns} data={data} />
+                <div>
+                    {this.state.loading ? (
+                        <Spinner/>
+                    ) : (
+                        <Table columns={columns} data={data} />
+                    )}
+                </div>
                 {!this.state.showErrors && (
                     <Link to={`${match.url}/quiz`}>
                         <StyledButton>

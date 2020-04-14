@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import styled from 'styled-components';
-// import { Button, Form } from 'react-bootstrap';
 import Button from '../../atoms/Button';
 
 const Wrapper = styled.div`
@@ -56,27 +55,6 @@ const Label = styled.label`
 	padding-right: 25px;
 `;
 
-const Input = styled.div`
-    // width: 50%;
-    box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	border: 1px solid #C2C2C2;
-	box-shadow: 1px 1px 4px #EBEBEB;
-	-moz-box-shadow: 1px 1px 4px #EBEBEB;
-	-webkit-box-shadow: 1px 1px 4px #EBEBEB;
-	border-radius: 3px;
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	padding: 7px;
-	outline: none;
-    
-    &:focus {
-        border: 1px solid #0C0;
-        // border: 1px solid #43D1AF;
-    }
-`;
-
 class LoginPage extends React.Component {
     constructor(props) {
         super(props);
@@ -113,7 +91,7 @@ class LoginPage extends React.Component {
             },
             body: "username="+this.state.username+"&password="+this.state.password,
         }).then(response => {
-            if (response.status == 200) {
+            if (response.status === 200) {
                 this.props.history.push('/books');
             } else {
                 this.props.history.push('/');
