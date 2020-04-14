@@ -66,10 +66,15 @@ Automatically Remove a Question from Error Book after Answering Correctly
 
 
 ## Run App
-Go to root diretory(/testbank), run the following commands.
-```
-export FLASK_APP=testbank
-export FLASK_DEBUG=true
-flask run
-```
-You will see a message telling you that server has started along with the address at which you can access it.
+- Go to diretory(/testbank), run the following commands.
+    ```
+    export FLASK_APP=testbank
+    export FLASK_DEBUG=true
+    flask run
+    ```
+
+- Open another terminal, go to directory(/testbank-frontend), run 
+
+    `yarn start`
+
+- You will see a message telling you that server has started along with the address at which you can access it. (`http://localhost:3000/`)
