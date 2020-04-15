@@ -5,6 +5,8 @@ Members:
 			Drew the ER-Diagram indicating the application design.
 		- Milestone2:
 			Amended the ER-Diagram indicating the application design.
+		- Final:
+			Data cleaning and quality assurance.
 	Jiaqi Wang (20657135): 
 		- Milestone 1:
 			Participated in group meeting and discussed the application design;
@@ -14,6 +16,8 @@ Members:
 		- Milestone 2:
 			New feature implementation (error book);
 			Described the model in relational data model.
+		- Final:
+			Backend implementation.
 	Xueyao Yu (20622323): 
 		- Milestone 1:
 			Participated in group meeting and discussed the application design;
@@ -22,6 +26,8 @@ Members:
 		- Milestone 2:
 			Implementing application frontend with React;
 			Implemented the test production scripts. 
+		- Final:
+			Frontend implementation.
 	Zhengmin Zhang (20602385):
 		- Milestone 1:
 			Participated in group meeting and discussed the application design;
@@ -29,4 +35,6 @@ Members:
 			Finished the report with project details listed.
 		- Milestone 2:
 			Finished the milestone report according to the progress and requirements.
+		- Final:
+			Front-to-back code review.
 
